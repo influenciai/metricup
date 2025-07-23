@@ -17,12 +17,12 @@ import TrendingSection from "@/components/TrendingSection";
 import AddMetricsForm from "@/components/AddMetricsForm";
 import GoalsForm from "@/components/GoalsForm";
 import { useStartupMetrics } from "@/hooks/useStartupMetrics";
-import { useStats } from "@/hooks/useStats";
+import { calculateGrowthRate } from "@/lib/startup-data";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("overview");
-  const { loading, metrics } = useStartupMetrics();
+  const { loading, metrics, goals, latestMetrics, previousMetrics, predictions } = useStartupMetrics();
   const { signOut, user } = useAuth();
 
   if (loading) {
@@ -89,13 +89,98 @@ export default function Dashboard() {
           </div>
 
           <TabsContent value="overview" className="space-y-8">
-            <div className="text-center py-12">
-              <BarChart3 className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Dashboard em Desenvolvimento</h3>
-              <p className="text-muted-foreground">
-                Adicione suas métricas e configure suas metas para visualizar os dados
-              </p>
-            </div>
+            {metrics && metrics.length > 0 ? (
+              <>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <StatsCard
+                    title="Receita Total"
+                    value={`R$ ${(latestMetrics?.totalRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                    change={calculateGrowthRate(latestMetrics?.totalRevenue || 0, previousMetrics?.totalRevenue || 0)}
+                    icon={<DollarSign size={20} />}
+                  />
+                  <StatsCard
+                    title="MRR"
+                    value={`R$ ${(latestMetrics?.mrr || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                    change={calculateGrowthRate(latestMetrics?.mrr || 0, previousMetrics?.mrr || 0)}
+                    icon={<TrendingUp size={20} />}
+                  />
+                  <StatsCard
+                    title="Clientes Novos"
+                    value={String(latestMetrics?.newCustomers || 0)}
+                    change={calculateGrowthRate(latestMetrics?.newCustomers || 0, previousMetrics?.newCustomers || 0)}
+                    icon={<Users size={20} />}
+                  />
+                  <StatsCard
+                    title="Churn Rate"
+                    value={`${(latestMetrics?.churn || 0).toFixed(1)}%`}
+                    change={calculateGrowthRate(latestMetrics?.churn || 0, previousMetrics?.churn || 0)}
+                    icon={<AlertTriangle size={20} />}
+                  />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Histórico de Métricas</CardTitle>
+                      <CardDescription>Dados inseridos ao longo do tempo</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {metrics.map((metric, index) => (
+                          <div key={metric.id} className="flex justify-between items-center p-3 border rounded">
+                            <div>
+                              <p className="font-medium">{metric.month}</p>
+                              <p className="text-sm text-muted-foreground">
+                                MRR: R$ {metric.mrr.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm">Clientes: {metric.totalCustomers}</p>
+                              <p className="text-sm text-muted-foreground">Churn: {metric.churn}%</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Suas Metas</CardTitle>
+                      <CardDescription>Objetivos configurados para sua startup</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {goals ? (
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center">
+                            <span>Meta de Crescimento MRR:</span>
+                            <span className="font-medium">{goals.mrrGrowthTarget}%</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span>Meta de Novos Clientes:</span>
+                            <span className="font-medium">{goals.newCustomersGrowthTarget}%</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span>Churn Máximo Aceitável:</span>
+                            <span className="font-medium">{goals.maxChurnRate}%</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground">Nenhuma meta configurada ainda.</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <BarChart3 className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Dashboard em Desenvolvimento</h3>
+                <p className="text-muted-foreground">
+                  Adicione suas métricas e configure suas metas para visualizar os dados
+                </p>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="add-metrics" className="space-y-6">
