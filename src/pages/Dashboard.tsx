@@ -1,9 +1,23 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BarChart3, TrendingUp, Target, Users, DollarSign, AlertTriangle, Plus, LogOut } from "lucide-react";
+import { 
+  BarChart3, 
+  TrendingUp, 
+  Target, 
+  Users, 
+  DollarSign, 
+  AlertTriangle, 
+  Plus, 
+  LogOut,
+  Home,
+  Database,
+  Settings,
+  Bell,
+  Search,
+  RefreshCw
+} from "lucide-react";
 import MetricsCard from "@/components/MetricsCard";
 import StatsCard from "@/components/StatsCard";
 import BurnRateChart from "@/components/BurnRateChart";
@@ -17,17 +31,18 @@ import TrendingSection from "@/components/TrendingSection";
 import AddMetricsForm from "@/components/AddMetricsForm";
 import GoalsForm from "@/components/GoalsForm";
 import { useStartupMetrics } from "@/hooks/useStartupMetrics";
-import { calculateGrowthRate } from "@/lib/startup-data";
+import { calculateGrowthRate, formatCurrency } from "@/lib/startup-data";
 import { useAuth } from "@/contexts/AuthContext";
+import { Input } from "@/components/ui/input";
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("overview");
-  const { loading, metrics, goals, latestMetrics, previousMetrics, predictions } = useStartupMetrics();
+  const [activeSection, setActiveSection] = useState("dashboard");
+  const { loading, metrics, goals, latestMetrics, previousMetrics, predictions, refreshData } = useStartupMetrics();
   const { signOut, user } = useAuth();
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
           <p className="mt-4 text-muted-foreground">Carregando dashboard...</p>
@@ -35,163 +50,279 @@ export default function Dashboard() {
       </div>
     );
   }
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <BarChart3 className="h-8 w-8 text-primary" />
-            <div>
-              <h1 className="text-2xl font-bold">MetricUp</h1>
-              <p className="text-muted-foreground text-sm">Bem-vindo, {user?.email}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            <Badge variant="secondary" className="px-3 py-1">
-              <TrendingUp className="h-4 w-4 mr-1" />
-              Crescimento: +12%
-            </Badge>
-            <Button variant="outline" size="sm" onClick={signOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Sair
-            </Button>
-          </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-            <div>
-              <h2 className="text-3xl font-bold">Dashboard</h2>
-              <p className="text-muted-foreground">
-                Acompanhe as métricas da sua startup em tempo real
-              </p>
-            </div>
-            
-            <TabsList className="grid w-full sm:w-auto grid-cols-3">
-              <TabsTrigger value="overview" className="flex items-center gap-2">
-                <BarChart3 size={16} />
-                Visão Geral
-              </TabsTrigger>
-              <TabsTrigger value="add-metrics" className="flex items-center gap-2">
-                <Plus size={16} />
-                Adicionar Métricas
-              </TabsTrigger>
-              <TabsTrigger value="goals" className="flex items-center gap-2">
-                <Target size={16} />
-                Configurar Metas
-              </TabsTrigger>
-            </TabsList>
-          </div>
+  const sidebarItems = [
+    { id: "dashboard", label: "Dashboard", icon: Home },
+    { id: "inserir-dados", label: "Inserir Dados", icon: Plus },
+    { id: "metas", label: "Metas", icon: Target },
+    { id: "alertas", label: "Alertas", icon: Bell },
+  ];
 
-          <TabsContent value="overview" className="space-y-8">
-            {metrics && metrics.length > 0 ? (
-              <>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                  <StatsCard
-                    title="Receita Total"
-                    value={`R$ ${(latestMetrics?.totalRevenue || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-                    change={calculateGrowthRate(latestMetrics?.totalRevenue || 0, previousMetrics?.totalRevenue || 0)}
-                    icon={<DollarSign size={20} />}
-                  />
-                  <StatsCard
-                    title="MRR"
-                    value={`R$ ${(latestMetrics?.mrr || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-                    change={calculateGrowthRate(latestMetrics?.mrr || 0, previousMetrics?.mrr || 0)}
-                    icon={<TrendingUp size={20} />}
-                  />
-                  <StatsCard
-                    title="Clientes Novos"
-                    value={String(latestMetrics?.newCustomers || 0)}
-                    change={calculateGrowthRate(latestMetrics?.newCustomers || 0, previousMetrics?.newCustomers || 0)}
-                    icon={<Users size={20} />}
-                  />
-                  <StatsCard
-                    title="Churn Rate"
-                    value={`${(latestMetrics?.churn || 0).toFixed(1)}%`}
-                    change={calculateGrowthRate(latestMetrics?.churn || 0, previousMetrics?.churn || 0)}
-                    icon={<AlertTriangle size={20} />}
-                  />
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Histórico de Métricas</CardTitle>
-                      <CardDescription>Dados inseridos ao longo do tempo</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {metrics.map((metric, index) => (
-                          <div key={metric.id} className="flex justify-between items-center p-3 border rounded">
-                            <div>
-                              <p className="font-medium">{metric.month}</p>
-                              <p className="text-sm text-muted-foreground">
-                                MRR: R$ {metric.mrr.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-sm">Clientes: {metric.totalCustomers}</p>
-                              <p className="text-sm text-muted-foreground">Churn: {metric.churn}%</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Suas Metas</CardTitle>
-                      <CardDescription>Objetivos configurados para sua startup</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {goals ? (
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <span>Meta de Crescimento MRR:</span>
-                            <span className="font-medium">{goals.mrrGrowthTarget}%</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span>Meta de Novos Clientes:</span>
-                            <span className="font-medium">{goals.newCustomersGrowthTarget}%</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span>Churn Máximo Aceitável:</span>
-                            <span className="font-medium">{goals.maxChurnRate}%</span>
+  const renderMainContent = () => {
+    switch (activeSection) {
+      case "inserir-dados":
+        return <AddMetricsForm onSuccess={refreshData} />;
+      case "metas":
+        return <GoalsForm onSuccess={refreshData} />;
+      case "alertas":
+        return (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Alertas do Sistema</CardTitle>
+                <CardDescription>Monitoramento de métricas críticas</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {predictions?.alerts && predictions.alerts.length > 0 ? (
+                  <div className="space-y-3">
+                    {predictions.alerts.map((alert, index) => (
+                      <div key={index} className="p-3 border rounded-lg bg-muted/50">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-orange-500" />
+                          <div>
+                            <span className="font-medium">{alert.title}</span>
+                            <p className="text-sm text-muted-foreground">{alert.message}</p>
                           </div>
                         </div>
-                      ) : (
-                        <p className="text-muted-foreground">Nenhuma meta configurada ainda.</p>
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
-              </>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">Nenhum alerta no momento.</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        );
+      default:
+        return renderDashboard();
+    }
+  };
+
+  const renderDashboard = () => (
+    <div className="space-y-6">
+      {/* Título do Dashboard */}
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Dashboard de Métricas</h1>
+        <p className="text-muted-foreground">Controle financeiro e indicadores de crescimento da sua startup</p>
+      </div>
+
+      {/* Cards de métricas principais */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatsCard
+          title="MRR (Receita Recorrente)"
+          value={formatCurrency(latestMetrics?.mrr || 0)}
+          change={calculateGrowthRate(latestMetrics?.mrr || 0, previousMetrics?.mrr || 0)}
+          icon={<TrendingUp size={20} />}
+          colorClass="from-green-500/20 to-green-600/5"
+        />
+        <StatsCard
+          title="Taxa de Churn"
+          value={`${(latestMetrics?.churn || 0).toFixed(1)}%`}
+          change={-calculateGrowthRate(latestMetrics?.churn || 0, previousMetrics?.churn || 0)}
+          icon={<AlertTriangle size={20} />}
+          colorClass="from-red-500/20 to-red-600/5"
+        />
+        <StatsCard
+          title="Novos Clientes"
+          value={String(latestMetrics?.newCustomers || 0)}
+          change={calculateGrowthRate(latestMetrics?.newCustomers || 0, previousMetrics?.newCustomers || 0)}
+          icon={<Users size={20} />}
+          colorClass="from-blue-500/20 to-blue-600/5"
+        />
+        <StatsCard
+          title="LTV (Lifetime Value)"
+          value={formatCurrency(latestMetrics?.ltv || 0)}
+          change={calculateGrowthRate(latestMetrics?.ltv || 0, previousMetrics?.ltv || 0)}
+          icon={<DollarSign size={20} />}
+          colorClass="from-purple-500/20 to-purple-600/5"
+        />
+      </div>
+
+      {/* Segunda linha de métricas */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Nova Receita</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(latestMetrics?.newRevenue || 0)}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Receita Total</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(latestMetrics?.totalRevenue || 0)}</div>
+            <div className="text-sm text-green-500 mt-1">
+              ↗ {calculateGrowthRate(latestMetrics?.totalRevenue || 0, previousMetrics?.totalRevenue || 0).toFixed(1)}% vs mês anterior
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Burn Rate Total</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(latestMetrics?.burnRate?.total || 0)}</div>
+            <div className="text-sm text-muted-foreground mt-1">Gastos mensais totais</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Seções principais */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Fluxo de Caixa */}
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5" />
+              Fluxo de Caixa
+            </CardTitle>
+            <CardDescription>Análise do caixa atual e runway da startup</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <CashFlowIndicator 
+              mrr={latestMetrics?.mrr || 0}
+              burnRate={latestMetrics?.burnRate?.total || 0}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Alertas */}
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Alertas e Indicadores
+            </CardTitle>
+            <CardDescription>{predictions?.alerts?.length || 0} alertas requerem atenção</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {predictions?.alerts && predictions.alerts.length > 0 ? (
+              <div className="space-y-3">
+                {predictions.alerts.slice(0, 3).map((alert, index) => (
+                  <div key={index} className="flex items-start gap-2 p-2 rounded border-l-2 border-orange-500 bg-orange-50 dark:bg-orange-950/20">
+                    <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5" />
+                    <div className="text-sm">
+                      <div className="font-medium text-orange-800 dark:text-orange-300">
+                        {alert.type === 'danger' ? 'Alta' : alert.type === 'warning' ? 'Média' : 'Baixa'}
+                      </div>
+                      <div className="text-orange-700 dark:text-orange-400">{alert.message}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : (
-              <div className="text-center py-12">
-                <BarChart3 className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Dashboard em Desenvolvimento</h3>
-                <p className="text-muted-foreground">
-                  Adicione suas métricas e configure suas metas para visualizar os dados
-                </p>
+              <div className="text-center py-4">
+                <div className="text-green-500 mb-2">✓</div>
+                <p className="text-sm text-muted-foreground">Nenhum alerta crítico</p>
               </div>
             )}
-          </TabsContent>
+          </CardContent>
+        </Card>
 
-          <TabsContent value="add-metrics" className="space-y-6">
-            <AddMetricsForm onSuccess={() => {}} />
-          </TabsContent>
+        {/* Previsões */}
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5" />
+              Previsões para o Próximo Mês
+            </CardTitle>
+            <CardDescription>Projeções baseadas nas metas definidas e tendências atuais</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {predictions && <PredictionsCard predictions={predictions} />}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
 
-          <TabsContent value="goals" className="space-y-6">
-            <GoalsForm onSuccess={() => {}} />
-          </TabsContent>
-        </Tabs>
-      </main>
+  return (
+    <div className="min-h-screen bg-background flex">
+      {/* Sidebar */}
+      <div className="w-64 bg-card border-r border-border flex flex-col">
+        {/* Logo */}
+        <div className="p-6 border-b border-border">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <BarChart3 className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <span className="text-xl font-bold text-foreground">ScaleDash</span>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 p-4">
+          <div className="space-y-2">
+            {sidebarItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                  activeSection === item.id
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <item.icon className="h-5 w-5" />
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* Settings */}
+        <div className="p-4 border-t border-border">
+          <Button variant="ghost" className="w-full justify-start" onClick={signOut}>
+            <Settings className="h-5 w-5 mr-3" />
+            Settings
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="bg-card border-b border-border px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="sm">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+              <div className="text-sm text-muted-foreground">
+                Controle financeiro da sua startup • {new Date().toLocaleDateString('pt-BR', { 
+                  day: '2-digit', 
+                  month: 'long', 
+                  year: 'numeric' 
+                })}
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="sm">
+                <Bell className="h-4 w-4" />
+              </Button>
+              <div className="relative">
+                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                <Input 
+                  placeholder="Buscar métricas..." 
+                  className="pl-10 w-64"
+                />
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 p-6 overflow-auto">
+          {renderMainContent()}
+        </main>
+      </div>
     </div>
   );
 }
