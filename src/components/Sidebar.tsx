@@ -72,7 +72,7 @@ export default function Sidebar({ className }: SidebarProps) {
             <BarChart4 size={18} className="text-primary-foreground" />
           </div>
           {!collapsed && (
-            <h1 className="font-semibold text-xl text-sidebar-foreground">Metrics<span className="text-primary">Tracker</span></h1>
+            <h1 className="font-semibold text-xl text-sidebar-foreground">Scale<span className="text-primary">Dash</span></h1>
           )}
         </div>
       </div>
