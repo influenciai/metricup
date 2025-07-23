@@ -5,14 +5,14 @@ import {
   LayoutDashboard, 
   TrendingUp, 
   LineChart, 
-  List, 
   Settings, 
   ChevronLeft, 
   ChevronRight,
-  Wallet,
   BarChart4,
-  Star,
-  Users
+  PlusCircle,
+  Target,
+  AlertTriangle,
+  FileText
 } from "lucide-react";
 
 interface SidebarLinkProps {
@@ -72,7 +72,7 @@ export default function Sidebar({ className }: SidebarProps) {
             <BarChart4 size={18} className="text-primary-foreground" />
           </div>
           {!collapsed && (
-            <h1 className="font-semibold text-xl text-sidebar-foreground">Chain<span className="text-primary">Agent</span></h1>
+            <h1 className="font-semibold text-xl text-sidebar-foreground">Metrics<span className="text-primary">Tracker</span></h1>
           )}
         </div>
       </div>
@@ -96,25 +96,25 @@ export default function Sidebar({ className }: SidebarProps) {
             onClick={() => setActiveLink("Dashboard")}
           />
           <SidebarLink 
-            icon={List} 
-            label="Project List" 
-            active={activeLink === "Project List"}
+            icon={PlusCircle} 
+            label="Inserir Dados" 
+            active={activeLink === "Inserir Dados"}
             collapsed={collapsed}
-            onClick={() => setActiveLink("Project List")}
+            onClick={() => setActiveLink("Inserir Dados")}
           />
           <SidebarLink 
-            icon={Star} 
-            label="Top ROI" 
-            active={activeLink === "Top ROI"}
+            icon={Target} 
+            label="Metas" 
+            active={activeLink === "Metas"}
             collapsed={collapsed}
-            onClick={() => setActiveLink("Top ROI")}
+            onClick={() => setActiveLink("Metas")}
           />
           <SidebarLink 
-            icon={TrendingUp} 
-            label="Trending" 
-            active={activeLink === "Trending"}
+            icon={AlertTriangle} 
+            label="Alertas" 
+            active={activeLink === "Alertas"}
             collapsed={collapsed}
-            onClick={() => setActiveLink("Trending")}
+            onClick={() => setActiveLink("Alertas")}
           />
         </div>
 
@@ -123,29 +123,29 @@ export default function Sidebar({ className }: SidebarProps) {
             "text-xs uppercase text-sidebar-foreground/60 mb-2 px-3",
             collapsed && "text-center"
           )}>
-            {collapsed ? "More" : "Analytics"}
+            {collapsed ? "Mais" : "Relatórios"}
           </p>
           <div className="space-y-1">
             <SidebarLink 
+              icon={TrendingUp} 
+              label="Evolução" 
+              active={activeLink === "Evolução"}
+              collapsed={collapsed}
+              onClick={() => setActiveLink("Evolução")}
+            />
+            <SidebarLink 
               icon={LineChart} 
-              label="Market Insights" 
-              active={activeLink === "Market Insights"}
+              label="Comparativos" 
+              active={activeLink === "Comparativos"}
               collapsed={collapsed}
-              onClick={() => setActiveLink("Market Insights")}
+              onClick={() => setActiveLink("Comparativos")}
             />
             <SidebarLink 
-              icon={Wallet} 
-              label="Portfolios" 
-              active={activeLink === "Portfolios"}
+              icon={FileText} 
+              label="Relatórios" 
+              active={activeLink === "Relatórios"}
               collapsed={collapsed}
-              onClick={() => setActiveLink("Portfolios")}
-            />
-            <SidebarLink 
-              icon={Users} 
-              label="Social Trends" 
-              active={activeLink === "Social Trends"}
-              collapsed={collapsed}
-              onClick={() => setActiveLink("Social Trends")}
+              onClick={() => setActiveLink("Relatórios")}
             />
           </div>
         </div>

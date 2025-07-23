@@ -16,9 +16,9 @@ export default function Header({ onRefresh, isLoading = false }: HeaderProps) {
   return (
     <header className="bg-background py-3 px-4 md:px-8 border-b border-border flex items-center justify-between animate-fade-in">
       <div className="flex-1">
-        <h1 className="text-xl font-medium">Dashboard</h1>
+        <h1 className="text-xl font-medium">Dashboard de Métricas</h1>
         <p className="text-sm text-muted-foreground">
-          Your crypto insights for {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          Controle financeiro da sua startup - {new Date().toLocaleDateString('pt-BR', { month: 'long', day: 'numeric', year: 'numeric' })}
         </p>
       </div>
 
@@ -47,7 +47,7 @@ export default function Header({ onRefresh, isLoading = false }: HeaderProps) {
             type="text"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            placeholder="Search projects..."
+            placeholder="Buscar métricas..."
             className="pl-10 pr-4 py-2 h-full rounded-full text-sm bg-secondary border border-border focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors w-[220px] md:w-[280px]"
           />
         </div>
