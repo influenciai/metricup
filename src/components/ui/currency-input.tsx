@@ -11,18 +11,22 @@ interface CurrencyInputProps extends Omit<React.ComponentProps<"input">, 'onChan
 const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
   ({ className, value = '', onChange, ...props }, ref) => {
     const { displayValue, numericValue, handleChange, setValue } = useCurrencyInput();
+    const prevValueRef = React.useRef(value);
 
-    // Sincroniza o valor inicial e mudanças externas
+    // Sincroniza o valor inicial e mudanças externas apenas quando realmente mudou
     React.useEffect(() => {
-      setValue(value);
+      if (value !== prevValueRef.current) {
+        setValue(value);
+        prevValueRef.current = value;
+      }
     }, [value, setValue]);
 
-    // Notifica mudanças para o componente pai
+    // Notifica mudanças para o componente pai apenas quando necessário
     React.useEffect(() => {
-      if (onChange && numericValue !== value) {
+      if (onChange && numericValue !== value && numericValue !== prevValueRef.current) {
         onChange(numericValue);
       }
-    }, [numericValue, onChange, value]);
+    }, [numericValue, onChange]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       handleChange(e.target.value);

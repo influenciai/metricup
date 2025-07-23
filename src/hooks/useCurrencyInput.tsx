@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 export const useCurrencyInput = (initialValue: string = '') => {
   const [displayValue, setDisplayValue] = useState(initialValue);
   const [numericValue, setNumericValue] = useState(initialValue);
+  const isUpdatingRef = useRef(false);
 
   const formatCurrency = useCallback((value: string): string => {
     // Remove todos os caracteres não numéricos
@@ -21,6 +22,9 @@ export const useCurrencyInput = (initialValue: string = '') => {
   }, []);
 
   const handleChange = useCallback((value: string) => {
+    if (isUpdatingRef.current) return;
+    
+    isUpdatingRef.current = true;
     const formatted = formatCurrency(value);
     setDisplayValue(formatted);
     
@@ -32,12 +36,17 @@ export const useCurrencyInput = (initialValue: string = '') => {
     } else {
       setNumericValue('');
     }
+    isUpdatingRef.current = false;
   }, [formatCurrency]);
 
   const setValue = useCallback((value: string) => {
+    if (isUpdatingRef.current) return;
+    
+    isUpdatingRef.current = true;
     if (value === '') {
       setDisplayValue('');
       setNumericValue('');
+      isUpdatingRef.current = false;
       return;
     }
     
@@ -57,6 +66,7 @@ export const useCurrencyInput = (initialValue: string = '') => {
         setNumericValue(value);
       }
     }
+    isUpdatingRef.current = false;
   }, [formatCurrency]);
 
   return {
