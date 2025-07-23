@@ -202,26 +202,32 @@ export default function Dashboard() {
             <CardDescription>{predictions?.alerts?.length || 0} alertas requerem atenção</CardDescription>
           </CardHeader>
           <CardContent>
-            {predictions?.alerts && predictions.alerts.length > 0 ? (
-              <div className="space-y-3">
-                {predictions.alerts.slice(0, 3).map((alert, index) => (
-                  <div key={index} className="flex items-start gap-2 p-2 rounded border-l-2 border-orange-500 bg-orange-50 dark:bg-orange-950/20">
-                    <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5" />
-                    <div className="text-sm">
-                      <div className="font-medium text-orange-800 dark:text-orange-300">
-                        {alert.type === 'danger' ? 'Alta' : alert.type === 'warning' ? 'Média' : 'Baixa'}
+            {(() => {
+              console.log('predictions.alerts:', predictions?.alerts);
+              return predictions?.alerts && predictions.alerts.length > 0 ? (
+                <div className="space-y-3">
+                  {predictions.alerts.slice(0, 3).map((alert, index) => {
+                    console.log('alert object:', alert, 'type:', typeof alert);
+                    return (
+                      <div key={index} className="flex items-start gap-2 p-2 rounded border-l-2 border-orange-500 bg-orange-50 dark:bg-orange-950/20">
+                        <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5" />
+                        <div className="text-sm">
+                          <div className="font-medium text-orange-800 dark:text-orange-300">
+                            {alert.type === 'danger' ? 'Alta' : alert.type === 'warning' ? 'Média' : 'Baixa'}
+                          </div>
+                          <div className="text-orange-700 dark:text-orange-400">{alert.message}</div>
+                        </div>
                       </div>
-                      <div className="text-orange-700 dark:text-orange-400">{alert.message}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-4">
-                <div className="text-green-500 mb-2">✓</div>
-                <p className="text-sm text-muted-foreground">Nenhum alerta crítico</p>
-              </div>
-            )}
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <div className="text-green-500 mb-2">✓</div>
+                  <p className="text-sm text-muted-foreground">Nenhum alerta crítico</p>
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
 
