@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -146,13 +147,11 @@ export default function AddMetricsForm({ onSuccess }: AddMetricsFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="mrr">MRR (R$)</Label>
-                <Input
+                <CurrencyInput
                   id="mrr"
-                  type="number"
-                  step="0.01"
                   value={formData.mrr}
-                  onChange={(e) => handleInputChange("mrr", e.target.value)}
-                  placeholder="Ex: 50000.00"
+                  onChange={(value) => handleInputChange("mrr", value)}
+                  placeholder="Ex: 50.000,00"
                 />
               </div>
               <div className="space-y-2">
@@ -168,24 +167,20 @@ export default function AddMetricsForm({ onSuccess }: AddMetricsFormProps) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="newRevenue">Nova Receita (R$)</Label>
-                <Input
+                <CurrencyInput
                   id="newRevenue"
-                  type="number"
-                  step="0.01"
                   value={formData.newRevenue}
-                  onChange={(e) => handleInputChange("newRevenue", e.target.value)}
-                  placeholder="Ex: 15000.00"
+                  onChange={(value) => handleInputChange("newRevenue", value)}
+                  placeholder="Ex: 15.000,00"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="totalRevenue">Receita Total (R$)</Label>
-                <Input
+                <CurrencyInput
                   id="totalRevenue"
-                  type="number"
-                  step="0.01"
                   value={formData.totalRevenue}
-                  onChange={(e) => handleInputChange("totalRevenue", e.target.value)}
-                  placeholder="Ex: 65000.00"
+                  onChange={(value) => handleInputChange("totalRevenue", value)}
+                  placeholder="Ex: 65.000,00"
                 />
               </div>
               <div className="space-y-2">
@@ -210,13 +205,11 @@ export default function AddMetricsForm({ onSuccess }: AddMetricsFormProps) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="ltv">LTV (R$)</Label>
-                <Input
+                <CurrencyInput
                   id="ltv"
-                  type="number"
-                  step="0.01"
                   value={formData.ltv}
-                  onChange={(e) => handleInputChange("ltv", e.target.value)}
-                  placeholder="Ex: 3500.00"
+                  onChange={(value) => handleInputChange("ltv", value)}
+                  placeholder="Ex: 3.500,00"
                 />
               </div>
             </div>
@@ -227,68 +220,56 @@ export default function AddMetricsForm({ onSuccess }: AddMetricsFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="burnRateTechnology">Tecnologia</Label>
-                <Input
+                <CurrencyInput
                   id="burnRateTechnology"
-                  type="number"
-                  step="0.01"
                   value={formData.burnRateTechnology}
-                  onChange={(e) => handleInputChange("burnRateTechnology", e.target.value)}
-                  placeholder="Ex: 8000.00"
+                  onChange={(value) => handleInputChange("burnRateTechnology", value)}
+                  placeholder="Ex: 8.000,00"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="burnRateSalaries">Salários</Label>
-                <Input
+                <CurrencyInput
                   id="burnRateSalaries"
-                  type="number"
-                  step="0.01"
                   value={formData.burnRateSalaries}
-                  onChange={(e) => handleInputChange("burnRateSalaries", e.target.value)}
-                  placeholder="Ex: 25000.00"
+                  onChange={(value) => handleInputChange("burnRateSalaries", value)}
+                  placeholder="Ex: 25.000,00"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="burnRateProlabore">Pró-labore</Label>
-                <Input
+                <CurrencyInput
                   id="burnRateProlabore"
-                  type="number"
-                  step="0.01"
                   value={formData.burnRateProlabore}
-                  onChange={(e) => handleInputChange("burnRateProlabore", e.target.value)}
-                  placeholder="Ex: 7000.00"
+                  onChange={(value) => handleInputChange("burnRateProlabore", value)}
+                  placeholder="Ex: 7.000,00"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="burnRateMarketing">Marketing</Label>
-                <Input
+                <CurrencyInput
                   id="burnRateMarketing"
-                  type="number"
-                  step="0.01"
                   value={formData.burnRateMarketing}
-                  onChange={(e) => handleInputChange("burnRateMarketing", e.target.value)}
-                  placeholder="Ex: 12000.00"
+                  onChange={(value) => handleInputChange("burnRateMarketing", value)}
+                  placeholder="Ex: 12.000,00"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="burnRateAdministrative">Administrativo</Label>
-                <Input
+                <CurrencyInput
                   id="burnRateAdministrative"
-                  type="number"
-                  step="0.01"
                   value={formData.burnRateAdministrative}
-                  onChange={(e) => handleInputChange("burnRateAdministrative", e.target.value)}
-                  placeholder="Ex: 3000.00"
+                  onChange={(value) => handleInputChange("burnRateAdministrative", value)}
+                  placeholder="Ex: 3.000,00"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="burnRateOthers">Outros</Label>
-                <Input
+                <CurrencyInput
                   id="burnRateOthers"
-                  type="number"
-                  step="0.01"
                   value={formData.burnRateOthers}
-                  onChange={(e) => handleInputChange("burnRateOthers", e.target.value)}
-                  placeholder="Ex: 2000.00"
+                  onChange={(value) => handleInputChange("burnRateOthers", value)}
+                  placeholder="Ex: 2.000,00"
                 />
               </div>
             </div>
