@@ -29,14 +29,18 @@ import AlertsPanel from "@/components/AlertsPanel";
 import CashFlowIndicator from "@/components/CashFlowIndicator";
 import TrendingSection from "@/components/TrendingSection";
 import AddMetricsForm from "@/components/AddMetricsForm";
+import EditMetricsForm from "@/components/EditMetricsForm";
+import MetricsTable from "@/components/MetricsTable";
 import GoalsForm from "@/components/GoalsForm";
 import { useStartupMetrics } from "@/hooks/useStartupMetrics";
 import { calculateGrowthRate, formatCurrency } from "@/lib/startup-data";
 import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
+import { StartupMetrics } from "@/types/startup-metrics";
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("dashboard");
+  const [editingMetrics, setEditingMetrics] = useState<StartupMetrics | null>(null);
   const { loading, metrics, goals, latestMetrics, previousMetrics, predictions, refreshData } = useStartupMetrics();
   const { signOut, user } = useAuth();
 
@@ -54,14 +58,36 @@ export default function Dashboard() {
   const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "inserir-dados", label: "Inserir Dados", icon: Plus },
+    { id: "gerenciar-dados", label: "Gerenciar Dados", icon: Database },
     { id: "metas", label: "Metas", icon: Target },
     { id: "alertas", label: "Alertas", icon: Bell },
   ];
 
   const renderMainContent = () => {
+    if (editingMetrics) {
+      return (
+        <EditMetricsForm 
+          metrics={editingMetrics}
+          onSuccess={() => {
+            setEditingMetrics(null);
+            refreshData();
+          }}
+          onCancel={() => setEditingMetrics(null)}
+        />
+      );
+    }
+
     switch (activeSection) {
       case "inserir-dados":
         return <AddMetricsForm onSuccess={refreshData} />;
+      case "gerenciar-dados":
+        return (
+          <MetricsTable 
+            metrics={metrics || []}
+            onEdit={setEditingMetrics}
+            onRefresh={refreshData}
+          />
+        );
       case "metas":
         return <GoalsForm onSuccess={refreshData} />;
       case "alertas":
@@ -202,32 +228,26 @@ export default function Dashboard() {
             <CardDescription>{predictions?.alerts?.length || 0} alertas requerem atenção</CardDescription>
           </CardHeader>
           <CardContent>
-            {(() => {
-              console.log('predictions.alerts:', predictions?.alerts);
-              return predictions?.alerts && predictions.alerts.length > 0 ? (
-                <div className="space-y-3">
-                  {predictions.alerts.slice(0, 3).map((alert, index) => {
-                    console.log('alert object:', alert, 'type:', typeof alert);
-                    return (
-                      <div key={index} className="flex items-start gap-2 p-2 rounded border-l-2 border-orange-500 bg-orange-50 dark:bg-orange-950/20">
-                        <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5" />
-                        <div className="text-sm">
-                          <div className="font-medium text-orange-800 dark:text-orange-300">
-                            {alert.type === 'danger' ? 'Alta' : alert.type === 'warning' ? 'Média' : 'Baixa'}
-                          </div>
-                          <div className="text-orange-700 dark:text-orange-400">{alert.message}</div>
-                        </div>
+            {predictions?.alerts && predictions.alerts.length > 0 ? (
+              <div className="space-y-3">
+                {predictions.alerts.slice(0, 3).map((alert, index) => (
+                  <div key={index} className="flex items-start gap-2 p-2 rounded border-l-2 border-orange-500 bg-orange-50 dark:bg-orange-950/20">
+                    <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5" />
+                    <div className="text-sm">
+                      <div className="font-medium text-orange-800 dark:text-orange-300">
+                        {alert.type === 'danger' ? 'Alta' : alert.type === 'warning' ? 'Média' : 'Baixa'}
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <div className="text-green-500 mb-2">✓</div>
-                  <p className="text-sm text-muted-foreground">Nenhum alerta crítico</p>
-                </div>
-              );
-            })()}
+                      <div className="text-orange-700 dark:text-orange-400">{alert.message}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <div className="text-green-500 mb-2">✓</div>
+                <p className="text-sm text-muted-foreground">Nenhum alerta crítico</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
