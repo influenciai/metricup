@@ -1,23 +1,99 @@
 import { useState, useEffect } from "react";
 import { StartupMetrics, StartupGoals, MetricsPrediction, Alert } from "@/types/startup-metrics";
-import { mockStartupMetrics, mockStartupGoals, getCurrentCash, calculateGrowthRate } from "@/lib/startup-data";
+import { mockStartupGoals, getCurrentCash, calculateGrowthRate } from "@/lib/startup-data";
+import { supabase } from "@/integrations/supabase/client";
 
 export function useStartupMetrics() {
   const [loading, setLoading] = useState(true);
-  const [metrics, setMetrics] = useState<StartupMetrics[]>(mockStartupMetrics);
+  const [metrics, setMetrics] = useState<StartupMetrics[]>([]);
   const [goals, setGoals] = useState<StartupGoals>(mockStartupGoals);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate API loading
-    const timer = setTimeout(() => {
-      setMetrics(mockStartupMetrics);
-      setGoals(mockStartupGoals);
-      setLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      await Promise.all([loadMetrics(), loadGoals()]);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setError('Erro ao carregar dados');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMetrics = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      setError('Usuário não autenticado');
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('startup_metrics')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('month', { ascending: true });
+
+    if (error) {
+      console.error('Error loading metrics:', error);
+      setError('Erro ao carregar métricas');
+      return;
+    }
+
+    const formattedMetrics: StartupMetrics[] = (data || []).map(item => ({
+      id: item.id,
+      month: item.month,
+      mrr: Number(item.mrr),
+      churn: Number(item.churn),
+      newRevenue: Number(item.new_revenue),
+      totalRevenue: Number(item.total_revenue),
+      newCustomers: item.new_customers,
+      totalCustomers: item.total_customers,
+      ltv: Number(item.ltv),
+      burnRate: {
+        technology: Number(item.burn_rate_technology),
+        salaries: Number(item.burn_rate_salaries),
+        prolabore: Number(item.burn_rate_prolabore),
+        marketing: Number(item.burn_rate_marketing),
+        administrative: Number(item.burn_rate_administrative),
+        others: Number(item.burn_rate_others),
+        total: Number(item.burn_rate_total)
+      },
+      createdAt: new Date(item.created_at)
+    }));
+
+    setMetrics(formattedMetrics);
+  };
+
+  const loadGoals = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('startup_goals')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+      console.error('Error loading goals:', error);
+      return;
+    }
+
+    if (data) {
+      setGoals({
+        mrrGrowthTarget: Number(data.mrr_growth_target),
+        newCustomersGrowthTarget: Number(data.new_customers_growth_target),
+        maxChurnRate: Number(data.max_churn_rate)
+      });
+    }
+  };
 
   const getLatestMetrics = (): StartupMetrics | null => {
     if (metrics.length === 0) return null;
@@ -120,11 +196,8 @@ export function useStartupMetrics() {
     setGoals(newGoals);
   };
 
-  const refreshData = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+  const refreshData = async () => {
+    await loadData();
   };
 
   return {
