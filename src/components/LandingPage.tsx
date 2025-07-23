@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +20,6 @@ import {
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import SignupForm from "@/components/SignupForm";
 
 const mockMrrData = [
   { month: "Jan", mrr: 15000 },
@@ -46,8 +44,12 @@ const chartConfig = {
   },
 };
 
-export default function LandingPage() {
-  const [showSignup, setShowSignup] = useState(false);
+interface LandingPageProps {
+  onLogin: () => void;
+  onSignup: () => void;
+}
+
+export default function LandingPage({ onLogin, onSignup }: LandingPageProps) {
 
   const features = [
     {
@@ -104,9 +106,6 @@ export default function LandingPage() {
     }
   ];
 
-  if (showSignup) {
-    return <SignupForm onBack={() => setShowSignup(false)} />;
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -122,7 +121,7 @@ export default function LandingPage() {
               <Phone className="h-4 w-4 mr-2" />
               Contato
             </Button>
-            <Button onClick={() => setShowSignup(true)} size="sm">
+            <Button onClick={onSignup} size="sm">
               Começar Agora
             </Button>
           </div>
@@ -142,7 +141,7 @@ export default function LandingPage() {
             O MetricUp é a plataforma definitiva para acompanhar MRR, churn rate, LTV, burn rate e outras métricas essenciais para o crescimento da sua startup.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={() => setShowSignup(true)} className="text-lg px-8">
+            <Button size="lg" onClick={onSignup} className="text-lg px-8">
               <TrendingUp className="mr-2 h-5 w-5" />
               Começar Gratuitamente
             </Button>
@@ -150,6 +149,15 @@ export default function LandingPage() {
               <Phone className="mr-2 h-5 w-5" />
               Falar com Especialista
             </Button>
+          </div>
+          
+          <div className="text-center mt-4">
+            <p className="text-sm text-muted-foreground">
+              Já tem uma conta?{" "}
+              <Button variant="link" className="p-0 h-auto" onClick={onLogin}>
+                Fazer login
+              </Button>
+            </p>
           </div>
         </div>
       </section>
@@ -391,7 +399,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               
-              <Button onClick={() => setShowSignup(true)} className="w-full" size="lg">
+              <Button onClick={onSignup} className="w-full" size="lg">
                 Começar Agora
               </Button>
               
@@ -411,7 +419,7 @@ export default function LandingPage() {
             Junte-se a centenas de founders que já estão usando dados para acelerar o crescimento das suas startups.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={() => setShowSignup(true)} className="text-lg px-8">
+            <Button size="lg" onClick={onSignup} className="text-lg px-8">
               <Building className="mr-2 h-5 w-5" />
               Criar Conta Grátis
             </Button>

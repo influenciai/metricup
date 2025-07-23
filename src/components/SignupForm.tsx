@@ -6,12 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Building, Mail, Phone, User, FileText, BarChart3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SignupFormProps {
   onBack: () => void;
+  onLogin: () => void;
 }
 
-export default function SignupForm({ onBack }: SignupFormProps) {
+export default function SignupForm({ onBack, onLogin }: SignupFormProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -20,6 +22,7 @@ export default function SignupForm({ onBack }: SignupFormProps) {
     responsibleName: "",
     whatsapp: "",
     email: "",
+    password: "",
     businessType: ""
   });
 
@@ -32,7 +35,7 @@ export default function SignupForm({ onBack }: SignupFormProps) {
     setLoading(true);
 
     // Validação básica
-    if (!formData.companyName || !formData.email || !formData.responsibleName) {
+    if (!formData.companyName || !formData.email || !formData.responsibleName || !formData.password) {
       toast({
         title: "Campos obrigatórios",
         description: "Por favor, preencha todos os campos obrigatórios.",
@@ -42,24 +45,55 @@ export default function SignupForm({ onBack }: SignupFormProps) {
       return;
     }
 
-    // Simular cadastro
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const redirectUrl = `${window.location.origin}/`;
       
-      toast({
-        title: "Cadastro realizado com sucesso!",
-        description: "Em breve entraremos em contato para finalizar a configuração.",
+      const { error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            company_name: formData.companyName,
+            document: formData.document,
+            responsible_name: formData.responsibleName,
+            whatsapp: formData.whatsapp,
+            business_type: formData.businessType
+          }
+        }
       });
-      
-      // Reset form
-      setFormData({
-        companyName: "",
-        document: "",
-        responsibleName: "",
-        whatsapp: "",
-        email: "",
-        businessType: ""
-      });
+
+      if (error) {
+        if (error.message.includes('User already registered')) {
+          toast({
+            title: "Email já cadastrado",
+            description: "Este email já possui uma conta. Tente fazer login.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Erro no cadastro",
+            description: error.message,
+            variant: "destructive"
+          });
+        }
+      } else {
+        toast({
+          title: "Cadastro realizado com sucesso!",
+          description: "Verifique seu email para confirmar a conta.",
+        });
+        
+        // Reset form
+        setFormData({
+          companyName: "",
+          document: "",
+          responsibleName: "",
+          whatsapp: "",
+          email: "",
+          password: "",
+          businessType: ""
+        });
+      }
       
     } catch (error) {
       toast({
@@ -168,6 +202,22 @@ export default function SignupForm({ onBack }: SignupFormProps) {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="password" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Senha *
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Mínimo 6 caracteres"
+                  value={formData.password}
+                  onChange={(e) => handleInputChange("password", e.target.value)}
+                  required
+                  minLength={6}
+                />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="businessType">O que a empresa faz?</Label>
                 <Select value={formData.businessType} onValueChange={(value) => handleInputChange("businessType", value)}>
                   <SelectTrigger>
@@ -203,7 +253,7 @@ export default function SignupForm({ onBack }: SignupFormProps) {
         <div className="text-center mt-6">
           <p className="text-sm text-muted-foreground">
             Já tem uma conta?{" "}
-            <Button variant="link" className="p-0 h-auto" onClick={onBack}>
+            <Button variant="link" className="p-0 h-auto" onClick={onLogin}>
               Fazer login
             </Button>
           </p>

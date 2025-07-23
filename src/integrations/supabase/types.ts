@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          business_type: string | null
+          company_name: string
+          created_at: string
+          document: string | null
+          id: string
+          responsible_name: string
+          updated_at: string
+          user_id: string
+          whatsapp: string | null
+        }
+        Insert: {
+          business_type?: string | null
+          company_name: string
+          created_at?: string
+          document?: string | null
+          id?: string
+          responsible_name: string
+          updated_at?: string
+          user_id: string
+          whatsapp?: string | null
+        }
+        Update: {
+          business_type?: string | null
+          company_name?: string
+          created_at?: string
+          document?: string | null
+          id?: string
+          responsible_name?: string
+          updated_at?: string
+          user_id?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       startup_goals: {
         Row: {
           created_at: string

@@ -1,6 +1,6 @@
 
-import LandingPage from "@/components/LandingPage";
+import Auth from "./Auth";
 
 export default function Index() {
-  return <LandingPage />;
+  return <Auth />;
 }
