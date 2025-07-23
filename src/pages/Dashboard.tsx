@@ -89,13 +89,96 @@ export default function Dashboard() {
           </div>
 
           <TabsContent value="overview" className="space-y-8">
-            <div className="text-center py-12">
-              <BarChart3 className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Dashboard em Desenvolvimento</h3>
-              <p className="text-muted-foreground">
-                Adicione suas métricas e configure suas metas para visualizar os dados
-              </p>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <StatsCard
+                title="Receita Total"
+                value={latestMetrics?.totalRevenue || 0}
+                change={calculateGrowthRate(latestMetrics?.totalRevenue || 0, previousMetrics?.totalRevenue || 0)}
+                icon={DollarSign}
+              />
+              <StatsCard
+                title="MRR"
+                value={latestMetrics?.mrr || 0}
+                change={calculateGrowthRate(latestMetrics?.mrr || 0, previousMetrics?.mrr || 0)}
+                icon={TrendingUp}
+              />
+              <StatsCard
+                title="Clientes Novos"
+                value={latestMetrics?.newCustomers || 0}
+                change={calculateGrowthRate(latestMetrics?.newCustomers || 0, previousMetrics?.newCustomers || 0)}
+                icon={Users}
+              />
+              <StatsCard
+                title="Churn Rate"
+                value={latestMetrics?.churn || 0}
+                change={calculateGrowthRate(latestMetrics?.churn || 0, previousMetrics?.churn || 0)}
+                icon={AlertTriangle}
+              />
             </div>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+              <Card className="col-span-4">
+                <CardHeader>
+                  <CardTitle>Evolução das Métricas</CardTitle>
+                </CardHeader>
+                <CardContent className="pl-2">
+                  <MetricsEvolutionChart data={metrics} />
+                </CardContent>
+              </Card>
+              <Card className="col-span-3">
+                <CardHeader>
+                  <CardTitle>Queima de Caixa (Burn Rate)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <BurnRateChart data={latestMetrics?.burnRate} />
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+              <Card className="col-span-4">
+                <CardHeader>
+                  <CardTitle>Previsões e Alertas</CardTitle>
+                  <CardDescription>Baseado nas suas metas e métricas atuais.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <PredictionsCard predictions={predictions} />
+                </CardContent>
+              </Card>
+              <Card className="col-span-3">
+                <CardHeader>
+                  <CardTitle>Indicador de Fluxo de Caixa</CardTitle>
+                  <CardDescription>MRR vs. Burn Rate Total</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CashFlowIndicator mrr={latestMetrics?.mrr || 0} burnRateTotal={latestMetrics?.burnRate.total || 0} />
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Card className="col-span-2">
+                <CardHeader>
+                  <CardTitle>Índice de Medo e Ganância</CardTitle>
+                  <CardDescription>Sentimento do mercado (exemplo).</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <FearGreedIndex />
+                </CardContent>
+              </Card>
+              <Card className="col-span-2">
+                <CardHeader>
+                  <CardTitle>Projetos Ativos</CardTitle>
+                  <CardDescription>Visão geral dos seus projetos.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ProjectsTable />
+                </CardContent>
+              </Card>
+            </div>
+
+            <AlertsPanel alerts={predictions.alerts} />
+            <TrendingSection />
           </TabsContent>
 
           <TabsContent value="add-metrics" className="space-y-6">
@@ -110,3 +193,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
