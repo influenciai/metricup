@@ -14,7 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      startup_goals: {
+        Row: {
+          created_at: string
+          id: string
+          max_churn_rate: number
+          mrr_growth_target: number
+          new_customers_growth_target: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_churn_rate?: number
+          mrr_growth_target?: number
+          new_customers_growth_target?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_churn_rate?: number
+          mrr_growth_target?: number
+          new_customers_growth_target?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      startup_metrics: {
+        Row: {
+          burn_rate_administrative: number
+          burn_rate_marketing: number
+          burn_rate_others: number
+          burn_rate_prolabore: number
+          burn_rate_salaries: number
+          burn_rate_technology: number
+          burn_rate_total: number
+          churn: number
+          created_at: string
+          id: string
+          ltv: number
+          month: string
+          mrr: number
+          new_customers: number
+          new_revenue: number
+          total_customers: number
+          total_revenue: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          burn_rate_administrative?: number
+          burn_rate_marketing?: number
+          burn_rate_others?: number
+          burn_rate_prolabore?: number
+          burn_rate_salaries?: number
+          burn_rate_technology?: number
+          burn_rate_total?: number
+          churn?: number
+          created_at?: string
+          id?: string
+          ltv?: number
+          month: string
+          mrr?: number
+          new_customers?: number
+          new_revenue?: number
+          total_customers?: number
+          total_revenue?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          burn_rate_administrative?: number
+          burn_rate_marketing?: number
+          burn_rate_others?: number
+          burn_rate_prolabore?: number
+          burn_rate_salaries?: number
+          burn_rate_technology?: number
+          burn_rate_total?: number
+          churn?: number
+          created_at?: string
+          id?: string
+          ltv?: number
+          month?: string
+          mrr?: number
+          new_customers?: number
+          new_revenue?: number
+          total_customers?: number
+          total_revenue?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
