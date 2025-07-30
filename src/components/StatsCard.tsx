@@ -34,9 +34,9 @@ export default function StatsCard({
           <div className={cn(
             "flex items-center text-sm font-medium",
             isPositive ? "text-emerald-600" : "text-red-500"
-          )}>
+           )}>
             {isPositive ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
-            <span>{Math.abs(change)}%</span>
+            <span>{Math.abs(Math.min(999, change)).toFixed(1)}%</span>
             <span className="text-muted-foreground ml-1">vs mês anterior</span>
           </div>
         </div>

@@ -16,7 +16,11 @@ import {
   Settings,
   Bell,
   Search,
-  RefreshCw
+  RefreshCw,
+  ChevronDown,
+  ChevronRight,
+  TrendingDown,
+  Activity
 } from "lucide-react";
 import MetricsCard from "@/components/MetricsCard";
 import StatsCard from "@/components/StatsCard";
@@ -43,6 +47,7 @@ import AsaasSyncButton from "@/components/AsaasSyncButton";
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [editingMetrics, setEditingMetrics] = useState<StartupMetrics | null>(null);
+  const [metricsMenuOpen, setMetricsMenuOpen] = useState(false);
   const { loading, metrics, goals, latestMetrics, previousMetrics, predictions, refreshData } = useStartupMetrics();
   const { signOut, user } = useAuth();
 
@@ -64,6 +69,15 @@ export default function Dashboard() {
     { id: "metas", label: "Metas", icon: Target },
     { id: "alertas", label: "Alertas", icon: Bell },
     { id: "clientes-atraso", label: "Clientes em Atraso", icon: AlertTriangle },
+  ];
+
+  const metricsItems = [
+    { id: "metrica-mrr", label: "MRR", icon: DollarSign },
+    { id: "metrica-churn", label: "Taxa de Churn", icon: TrendingDown },
+    { id: "metrica-clientes", label: "Novos Clientes", icon: Users },
+    { id: "metrica-ltv", label: "LTV", icon: Activity },
+    { id: "metrica-receita", label: "Receita Total", icon: TrendingUp },
+    { id: "metrica-burnrate", label: "Burn Rate", icon: AlertTriangle },
   ];
 
   const renderMainContent = () => {
@@ -95,6 +109,18 @@ export default function Dashboard() {
         return <GoalsForm onSuccess={refreshData} />;
       case "clientes-atraso":
         return <OverdueCustomersPanel />;
+      case "metrica-mrr":
+        return renderMetricaIndividual("MRR", "DollarSign");
+      case "metrica-churn":
+        return renderMetricaIndividual("Churn", "TrendingDown");
+      case "metrica-clientes":
+        return renderMetricaIndividual("Clientes", "Users");
+      case "metrica-ltv":
+        return renderMetricaIndividual("LTV", "Activity");
+      case "metrica-receita":
+        return renderMetricaIndividual("Receita", "TrendingUp");
+      case "metrica-burnrate":
+        return renderMetricaIndividual("BurnRate", "AlertTriangle");
       case "alertas":
         return (
           <div className="space-y-6">
@@ -128,6 +154,218 @@ export default function Dashboard() {
       default:
         return renderDashboard();
     }
+  };
+
+  const renderMetricaIndividual = (metricType: string, iconType: string) => {
+    const getMetricData = () => {
+      switch (metricType) {
+        case "MRR":
+          return {
+            title: "MRR (Monthly Recurring Revenue)",
+            value: formatCurrency(latestMetrics?.mrr || 0),
+            change: calculateGrowthRate(latestMetrics?.mrr || 0, previousMetrics?.mrr || 0),
+            description: "Receita recorrente mensal da sua startup",
+            metricKey: "mrr" as keyof StartupMetrics,
+            isCurrency: true
+          };
+        case "Churn":
+          return {
+            title: "Taxa de Churn",
+            value: `${(latestMetrics?.churn || 0).toFixed(1)}%`,
+            change: -calculateGrowthRate(latestMetrics?.churn || 0, previousMetrics?.churn || 0),
+            description: "Porcentagem de clientes que cancelaram no período",
+            metricKey: "churn" as keyof StartupMetrics,
+            isPercentage: true
+          };
+        case "Clientes":
+          return {
+            title: "Novos Clientes",
+            value: String(latestMetrics?.newCustomers || 0),
+            change: calculateGrowthRate(latestMetrics?.newCustomers || 0, previousMetrics?.newCustomers || 0),
+            description: "Número de novos clientes adquiridos no mês",
+            metricKey: "newCustomers" as keyof StartupMetrics
+          };
+        case "LTV":
+          return {
+            title: "LTV (Lifetime Value)",
+            value: formatCurrency(latestMetrics?.ltv || 0),
+            change: calculateGrowthRate(latestMetrics?.ltv || 0, previousMetrics?.ltv || 0),
+            description: "Valor médio que cada cliente gera durante sua permanência",
+            metricKey: "ltv" as keyof StartupMetrics,
+            isCurrency: true
+          };
+        case "Receita":
+          return {
+            title: "Receita Total",
+            value: formatCurrency(latestMetrics?.totalRevenue || 0),
+            change: calculateGrowthRate(latestMetrics?.totalRevenue || 0, previousMetrics?.totalRevenue || 0),
+            description: "Receita total incluindo MRR e pagamentos únicos",
+            metricKey: "totalRevenue" as keyof StartupMetrics,
+            isCurrency: true
+          };
+        case "BurnRate":
+          return {
+            title: "Burn Rate Total",
+            value: formatCurrency(latestMetrics?.burnRate?.total || 0),
+            change: calculateGrowthRate(latestMetrics?.burnRate?.total || 0, previousMetrics?.burnRate?.total || 0),
+            description: "Total de gastos mensais da startup",
+            metricKey: "burnRate" as keyof StartupMetrics,
+            isCurrency: true
+          };
+        default:
+          return null;
+      }
+    };
+
+    const metricData = getMetricData();
+    if (!metricData) return null;
+
+    return (
+      <div className="space-y-6">
+        {/* Header da métrica */}
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">{metricData.title}</h1>
+          <p className="text-muted-foreground">{metricData.description}</p>
+        </div>
+
+        {/* Card principal da métrica */}
+        <div className="grid gap-6 md:grid-cols-3">
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5" />
+                Valor Atual
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold mb-2">{metricData.value}</div>
+              <div className={`flex items-center gap-2 text-sm ${
+                metricData.change >= 0 ? "text-green-600" : "text-red-600"
+              }`}>
+                {metricData.change >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                <span>{Math.abs(Math.min(999, metricData.change)).toFixed(1)}% vs mês anterior</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Meta vs Real</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Meta mensal:</span>
+                  <span className="text-sm font-medium">
+                    {metricType === "MRR" && `${goals.mrrGrowthTarget}%`}
+                    {metricType === "Churn" && `${goals.maxChurnRate}%`}
+                    {metricType === "Clientes" && `${goals.newCustomersGrowthTarget}%`}
+                    {!["MRR", "Churn", "Clientes"].includes(metricType) && "N/A"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Resultado:</span>
+                  <span className={`text-sm font-medium ${
+                    metricData.change >= 0 ? "text-green-600" : "text-red-600"
+                  }`}>
+                    {Math.abs(Math.min(999, metricData.change)).toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Gráfico de evolução */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Evolução dos Últimos 12 Meses</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <MetricsEvolutionChart
+              data={metrics || []}
+              metric={metricData.metricKey as "mrr" | "churn" | "newRevenue" | "totalRevenue" | "newCustomers" | "totalCustomers" | "ltv"}
+              title={metricData.title}
+              color="#3b82f6"
+              isCurrency={metricData.isCurrency}
+              isPercentage={metricData.isPercentage}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Análises e insights */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Análise de Tendência</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {metricData.change > 10 && (
+                  <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border-l-4 border-green-500">
+                    <p className="text-sm text-green-800 dark:text-green-300">
+                      📈 Excelente crescimento! A métrica está {metricData.change.toFixed(1)}% acima do mês anterior.
+                    </p>
+                  </div>
+                )}
+                {metricData.change >= 0 && metricData.change <= 10 && (
+                  <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border-l-4 border-blue-500">
+                    <p className="text-sm text-blue-800 dark:text-blue-300">
+                      📊 Crescimento moderado de {metricData.change.toFixed(1)}%. Considere estratégias para acelerar.
+                    </p>
+                  </div>
+                )}
+                {metricData.change < 0 && (
+                  <div className="p-3 bg-red-50 dark:bg-red-950/20 rounded-lg border-l-4 border-red-500">
+                    <p className="text-sm text-red-800 dark:text-red-300">
+                      📉 Atenção! Queda de {Math.abs(metricData.change).toFixed(1)}%. Investigar causas e implementar ações corretivas.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Recomendações</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 text-sm">
+                {metricType === "MRR" && (
+                  <>
+                    <p>• Foque em retenção de clientes existentes</p>
+                    <p>• Implemente upsell e cross-sell</p>
+                    <p>• Monitore churn rate constantemente</p>
+                  </>
+                )}
+                {metricType === "Churn" && (
+                  <>
+                    <p>• Melhore o onboarding de novos clientes</p>
+                    <p>• Implemente pesquisas de satisfação</p>
+                    <p>• Desenvolva programa de fidelidade</p>
+                  </>
+                )}
+                {metricType === "Clientes" && (
+                  <>
+                    <p>• Otimize canais de aquisição</p>
+                    <p>• Implemente programa de referência</p>
+                    <p>• Melhore conversão do funil</p>
+                  </>
+                )}
+                {metricType === "LTV" && (
+                  <>
+                    <p>• Aumente o tempo de vida do cliente</p>
+                    <p>• Implemente estratégias de upsell</p>
+                    <p>• Reduza custos de churn</p>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
   };
 
   const renderDashboard = () => (
@@ -304,6 +542,44 @@ export default function Dashboard() {
                 {item.label}
               </button>
             ))}
+
+            {/* Menu expansível de Métricas */}
+            <div className="mt-4">
+              <button
+                onClick={() => setMetricsMenuOpen(!metricsMenuOpen)}
+                className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent/50"
+              >
+                <div className="flex items-center gap-3">
+                  <BarChart3 className="h-4 w-4" />
+                  Métricas
+                </div>
+                {metricsMenuOpen ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </button>
+
+              {/* Submenu de métricas */}
+              {metricsMenuOpen && (
+                <div className="ml-4 mt-2 space-y-1 border-l border-sidebar-border pl-4">
+                  {metricsItems.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveSection(item.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-xs ${
+                        activeSection === item.id
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm font-medium"
+                          : "text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent/50"
+                      }`}
+                    >
+                      <item.icon className="h-3 w-3" />
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </nav>
 
