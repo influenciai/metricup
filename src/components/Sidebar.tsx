@@ -92,6 +92,7 @@ export default function Sidebar({ className }: SidebarProps) {
 
       <div className="px-2 mt-6 space-y-6">
         <div className="space-y-1">
+          {/* 1 - Dashboard */}
           <SidebarLink 
             icon={LayoutDashboard} 
             label="Dashboard" 
@@ -99,6 +100,7 @@ export default function Sidebar({ className }: SidebarProps) {
             collapsed={collapsed}
             onClick={() => setActiveLink("Dashboard")}
           />
+          {/* 2 - Métricas */}
           <SidebarLink 
             icon={BarChart3} 
             label="Métricas" 
@@ -106,6 +108,7 @@ export default function Sidebar({ className }: SidebarProps) {
             collapsed={collapsed}
             onClick={() => setActiveLink("Métricas")}
           />
+          {/* 3 - Gerenciar Dados */}
           <SidebarLink 
             icon={Database} 
             label="Gerenciar Dados" 
@@ -113,6 +116,7 @@ export default function Sidebar({ className }: SidebarProps) {
             collapsed={collapsed}
             onClick={() => setActiveLink("Gerenciar Dados")}
           />
+          {/* 4 - Inserir Dados */}
           <SidebarLink 
             icon={PlusCircle} 
             label="Inserir Dados" 
@@ -120,6 +124,7 @@ export default function Sidebar({ className }: SidebarProps) {
             collapsed={collapsed}
             onClick={() => setActiveLink("Inserir Dados")}
           />
+          {/* 5 - Alertas */}
           <SidebarLink 
             icon={AlertTriangle} 
             label="Alertas" 
@@ -127,6 +132,7 @@ export default function Sidebar({ className }: SidebarProps) {
             collapsed={collapsed}
             onClick={() => setActiveLink("Alertas")}
           />
+          {/* 6 - Clientes em Atraso */}
           <SidebarLink 
             icon={UserX} 
             label="Clientes em Atraso" 
@@ -134,6 +140,7 @@ export default function Sidebar({ className }: SidebarProps) {
             collapsed={collapsed}
             onClick={() => setActiveLink("Clientes em Atraso")}
           />
+          {/* 7 - Metas */}
           <SidebarLink 
             icon={Target} 
             label="Metas" 
@@ -141,6 +148,7 @@ export default function Sidebar({ className }: SidebarProps) {
             collapsed={collapsed}
             onClick={() => setActiveLink("Metas")}
           />
+          {/* 8 - Integrações */}
           <SidebarLink 
             icon={Plug} 
             label="Integrações" 
