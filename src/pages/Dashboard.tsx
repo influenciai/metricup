@@ -22,7 +22,7 @@ import {
   TrendingDown,
   Activity
 } from "lucide-react";
-import metricupLogo from "@/assets/metricup-logo.png";
+import metricupLogo from "@/assets/metricup-logo-official.png";
 import MetricsCard from "@/components/MetricsCard";
 import StatsCard from "@/components/StatsCard";
 import BurnRateChart from "@/components/BurnRateChart";

@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import metricupLogo from "@/assets/metricup-logo.png";
+import metricupLogo from "@/assets/metricup-logo-official.png";
 
 const mockMrrData = [
   { month: "Jan", mrr: 15000 },
