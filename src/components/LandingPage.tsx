@@ -121,6 +121,9 @@ export default function LandingPage({ onLogin, onSignup }: LandingPageProps) {
               <Phone className="h-4 w-4 mr-2" />
               Contato
             </Button>
+            <Button variant="outline" onClick={onLogin} size="sm">
+              Entrar
+            </Button>
             <Button onClick={onSignup} size="sm">
               Começar Agora
             </Button>
