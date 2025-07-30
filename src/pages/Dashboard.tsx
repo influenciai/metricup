@@ -375,7 +375,7 @@ export default function Dashboard() {
   const renderDashboard = () => (
     <div className="space-y-6">
       {/* Cards de métricas principais */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <StatsCard
           title="MRR (Receita Recorrente)"
           value={formatCurrency(latestMetrics?.mrr || 0)}
@@ -396,6 +396,13 @@ export default function Dashboard() {
           change={calculateGrowthRate(latestMetrics?.newCustomers || 0, previousMetrics?.newCustomers || 0)}
           icon={<Users size={20} />}
           colorClass="from-blue-500/20 to-blue-600/5"
+        />
+        <StatsCard
+          title="Clientes Ativos"
+          value={String(latestMetrics?.totalCustomers || 0)}
+          change={calculateGrowthRate(latestMetrics?.totalCustomers || 0, previousMetrics?.totalCustomers || 0)}
+          icon={<Users size={20} />}
+          colorClass="from-cyan-500/20 to-cyan-600/5"
         />
         <StatsCard
           title="LTV (Lifetime Value)"
