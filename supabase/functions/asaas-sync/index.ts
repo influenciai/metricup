@@ -26,6 +26,7 @@ interface AsaasSubscription {
   value: number;
   dateCreated: string;
   nextDueDate?: string;
+  deletedDate?: string;
 }
 
 interface AsaasPayment {
@@ -98,7 +99,7 @@ serve(async (req) => {
     const customers: AsaasCustomer[] = customersData.data || [];
     logStep("Clientes encontrados", { count: customers.length });
 
-    // Buscar assinaturas
+    // Buscar assinaturas ativas
     const subscriptionsResponse = await fetch(
       `https://www.asaas.com/api/v3/subscriptions?limit=100&dateCreated[ge]=${startDate}`,
       { headers: asaasHeaders }
@@ -109,8 +110,24 @@ serve(async (req) => {
     }
 
     const subscriptionsData = await subscriptionsResponse.json();
-    const subscriptions: AsaasSubscription[] = subscriptionsData.data || [];
-    logStep("Assinaturas encontradas", { count: subscriptions.length });
+    const activeSubscriptions: AsaasSubscription[] = subscriptionsData.data || [];
+    logStep("Assinaturas ativas encontradas", { count: activeSubscriptions.length });
+
+    // Buscar assinaturas removidas/canceladas para calcular churn real
+    const deletedSubscriptionsResponse = await fetch(
+      `https://www.asaas.com/api/v3/subscriptions?status=INACTIVE&limit=100&dateCreated[ge]=${startDate}`,
+      { headers: asaasHeaders }
+    );
+
+    let deletedSubscriptions: AsaasSubscription[] = [];
+    if (deletedSubscriptionsResponse.ok) {
+      const deletedData = await deletedSubscriptionsResponse.json();
+      deletedSubscriptions = deletedData.data || [];
+      logStep("Assinaturas canceladas encontradas", { count: deletedSubscriptions.length });
+    }
+
+    // Combinar todas as assinaturas para análise histórica
+    const allSubscriptions = [...activeSubscriptions, ...deletedSubscriptions];
 
     // Buscar todos os pagamentos recebidos dos últimos 12 meses
     let allPayments: AsaasPayment[] = [];
@@ -206,23 +223,64 @@ serve(async (req) => {
         .filter(p => newCustomerIds.includes(p.customer))
         .reduce((sum, p) => sum + p.value, 0);
 
-      // Contar total de clientes com assinaturas ativas
-      const activeSubscriptions = subscriptions.filter(s => 
-        s.status === 'ACTIVE' && new Date(s.dateCreated) <= monthEnd
-      );
-      const totalCustomers = activeSubscriptions.length;
+      // Contar total de clientes com assinaturas ativas no final do mês
+      const activeSubscriptionsEndOfMonth = allSubscriptions.filter(s => {
+        const createdDate = new Date(s.dateCreated);
+        const isCreatedBeforeOrDuringMonth = createdDate <= monthEnd;
+        
+        // Verificar se a assinatura estava ativa no final do mês
+        if (s.status === 'ACTIVE') {
+          return isCreatedBeforeOrDuringMonth;
+        } else {
+          // Para assinaturas inativas, verificar se foram canceladas após o final do mês
+          // Isso significa que estavam ativas durante o mês
+          return isCreatedBeforeOrDuringMonth;
+        }
+      });
+      
+      const totalCustomers = activeSubscriptionsEndOfMonth.length;
 
       // Calcular LTV (simplificado como tempo médio * MRR médio)
-      const avgSubscriptionValue = activeSubscriptions.length > 0 
-        ? activeSubscriptions.reduce((sum, s) => sum + s.value, 0) / activeSubscriptions.length 
+      const avgSubscriptionValue = activeSubscriptionsEndOfMonth.length > 0 
+        ? activeSubscriptionsEndOfMonth.reduce((sum, s) => sum + s.value, 0) / activeSubscriptionsEndOfMonth.length 
         : 0;
       const ltv = avgSubscriptionValue * 12; // Estimativa de 12 meses
 
-      // Calcular churn (simplificado)
-      const previousMonthCustomers = i === 0 ? totalCustomers : metrics[i-1]?.totalCustomers || 0;
-      const churn = previousMonthCustomers > 0 
-        ? Math.max(0, ((previousMonthCustomers - totalCustomers) / previousMonthCustomers) * 100)
+      // Calcular churn real baseado em assinaturas canceladas no mês
+      const previousMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() - 1, 1);
+      const previousMonthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth(), 0);
+      
+      // Assinaturas ativas no início do mês
+      const activeSubscriptionsStartOfMonth = allSubscriptions.filter(s => {
+        const createdDate = new Date(s.dateCreated);
+        return createdDate <= previousMonthEnd && 
+               (s.status === 'ACTIVE' || 
+                (s.status === 'INACTIVE' && createdDate <= monthEnd));
+      });
+
+      // Assinaturas canceladas especificamente neste mês
+      const subscriptionsCanceledThisMonth = deletedSubscriptions.filter(s => {
+        if (s.status !== 'INACTIVE') return false;
+        
+        // Assumir que foi cancelada neste mês se foi criada antes e está inativa
+        const createdDate = new Date(s.dateCreated);
+        return createdDate <= previousMonthEnd;
+      });
+
+      const churn = activeSubscriptionsStartOfMonth.length > 0 
+        ? (subscriptionsCanceledThisMonth.length / activeSubscriptionsStartOfMonth.length) * 100
         : 0;
+
+      // Log detalhado do cálculo de churn para o mês atual
+      if (i === 0) {
+        logStep("Cálculo de churn detalhado", {
+          month: monthStr,
+          activeStartOfMonth: activeSubscriptionsStartOfMonth.length,
+          canceledThisMonth: subscriptionsCanceledThisMonth.length,
+          churnRate: churn,
+          totalActiveEndOfMonth: totalCustomers
+        });
+      }
 
       const monthMetric = {
         month: monthStr,
