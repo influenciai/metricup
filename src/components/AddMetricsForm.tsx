@@ -24,6 +24,7 @@ export default function AddMetricsForm({ onSuccess }: AddMetricsFormProps) {
     ltv: "",
     burnRateTechnology: "",
     burnRateSalaries: "",
+    burnRateFerramentas: "",
     burnRateProlabore: "",
     burnRateMarketing: "",
     burnRateAdministrative: "",
@@ -38,6 +39,7 @@ export default function AddMetricsForm({ onSuccess }: AddMetricsFormProps) {
     const values = [
       parseFloat(formData.burnRateTechnology) || 0,
       parseFloat(formData.burnRateSalaries) || 0,
+      parseFloat(formData.burnRateFerramentas) || 0,
       parseFloat(formData.burnRateProlabore) || 0,
       parseFloat(formData.burnRateMarketing) || 0,
       parseFloat(formData.burnRateAdministrative) || 0,
@@ -80,6 +82,7 @@ export default function AddMetricsForm({ onSuccess }: AddMetricsFormProps) {
           ltv: parseFloat(formData.ltv) || 0,
           burn_rate_technology: parseFloat(formData.burnRateTechnology) || 0,
           burn_rate_salaries: parseFloat(formData.burnRateSalaries) || 0,
+          burn_rate_ferramentas: parseFloat(formData.burnRateFerramentas) || 0,
           burn_rate_prolabore: parseFloat(formData.burnRateProlabore) || 0,
           burn_rate_marketing: parseFloat(formData.burnRateMarketing) || 0,
           burn_rate_administrative: parseFloat(formData.burnRateAdministrative) || 0,
@@ -105,6 +108,7 @@ export default function AddMetricsForm({ onSuccess }: AddMetricsFormProps) {
         ltv: "",
         burnRateTechnology: "",
         burnRateSalaries: "",
+        burnRateFerramentas: "",
         burnRateProlabore: "",
         burnRateMarketing: "",
         burnRateAdministrative: "",
@@ -228,12 +232,21 @@ export default function AddMetricsForm({ onSuccess }: AddMetricsFormProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="burnRateSalaries">Salários</Label>
+                <Label htmlFor="burnRateSalaries">Folha de Pagamento</Label>
                 <CurrencyInput
                   id="burnRateSalaries"
                   value={formData.burnRateSalaries}
                   onChange={(value) => handleInputChange("burnRateSalaries", value)}
                   placeholder="Ex: 25.000,00"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="burnRateFerramentas">Ferramentas</Label>
+                <CurrencyInput
+                  id="burnRateFerramentas"
+                  value={formData.burnRateFerramentas}
+                  onChange={(value) => handleInputChange("burnRateFerramentas", value)}
+                  placeholder="Ex: 5.000,00"
                 />
               </div>
               <div className="space-y-2">

@@ -83,6 +83,7 @@ export type Database = {
       startup_metrics: {
         Row: {
           burn_rate_administrative: number
+          burn_rate_ferramentas: number
           burn_rate_marketing: number
           burn_rate_others: number
           burn_rate_prolabore: number
@@ -104,6 +105,7 @@ export type Database = {
         }
         Insert: {
           burn_rate_administrative?: number
+          burn_rate_ferramentas?: number
           burn_rate_marketing?: number
           burn_rate_others?: number
           burn_rate_prolabore?: number
@@ -125,6 +127,7 @@ export type Database = {
         }
         Update: {
           burn_rate_administrative?: number
+          burn_rate_ferramentas?: number
           burn_rate_marketing?: number
           burn_rate_others?: number
           burn_rate_prolabore?: number

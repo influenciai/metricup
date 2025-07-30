@@ -346,6 +346,7 @@ serve(async (req) => {
         ltv: metric.ltv,
         burn_rate_technology: metric.burnRate.technology,
         burn_rate_salaries: metric.burnRate.salaries,
+        burn_rate_ferramentas: 0, // Valor padrão até ser implementado
         burn_rate_prolabore: metric.burnRate.prolabore,
         burn_rate_marketing: metric.burnRate.marketing,
         burn_rate_administrative: metric.burnRate.administrative,

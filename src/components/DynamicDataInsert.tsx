@@ -87,6 +87,62 @@ const metricTypes: MetricType[] = [
     type: "currency"
   },
   {
+    id: "burn_rate_technology",
+    label: "Burn Rate - Tecnologia",
+    description: "Gastos com tecnologia",
+    icon: AlertTriangle,
+    color: "bg-red-500",
+    type: "currency"
+  },
+  {
+    id: "burn_rate_salaries",
+    label: "Burn Rate - Folha de Pagamento",
+    description: "Gastos com salários",
+    icon: AlertTriangle,
+    color: "bg-red-600",
+    type: "currency"
+  },
+  {
+    id: "burn_rate_ferramentas",
+    label: "Burn Rate - Ferramentas",
+    description: "Gastos com ferramentas",
+    icon: AlertTriangle,
+    color: "bg-orange-500",
+    type: "currency"
+  },
+  {
+    id: "burn_rate_prolabore",
+    label: "Burn Rate - Pró-labore",
+    description: "Gastos com pró-labore",
+    icon: AlertTriangle,
+    color: "bg-red-700",
+    type: "currency"
+  },
+  {
+    id: "burn_rate_marketing",
+    label: "Burn Rate - Marketing",
+    description: "Gastos com marketing",
+    icon: AlertTriangle,
+    color: "bg-pink-500",
+    type: "currency"
+  },
+  {
+    id: "burn_rate_administrative",
+    label: "Burn Rate - Administrativo",
+    description: "Gastos administrativos",
+    icon: AlertTriangle,
+    color: "bg-red-800",
+    type: "currency"
+  },
+  {
+    id: "burn_rate_others",
+    label: "Burn Rate - Outros",
+    description: "Outros gastos",
+    icon: AlertTriangle,
+    color: "bg-gray-500",
+    type: "currency"
+  },
+  {
     id: "burn_rate_total",
     label: "Burn Rate Total",
     description: "Gastos totais mensais",
