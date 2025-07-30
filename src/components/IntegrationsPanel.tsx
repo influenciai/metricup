@@ -1,13 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Plug, CheckCircle, XCircle, Eye, EyeOff, ExternalLink } from "lucide-react";
+import { Plug, CheckCircle, XCircle, Eye, EyeOff, ExternalLink, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import AsaasSyncButton from "@/components/AsaasSyncButton";
 
 interface Integration {
   id: string;
@@ -22,34 +23,7 @@ export default function IntegrationsPanel() {
   const [loading, setLoading] = useState(false);
   const [asaasApiKey, setAsaasApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
-  const [hasApiKey, setHasApiKey] = useState(false);
   const [testingConnection, setTestingConnection] = useState(false);
-
-  useEffect(() => {
-    checkExistingApiKey();
-  }, []);
-
-  const checkExistingApiKey = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Verificar se o usuário já tem uma API key configurada
-      // Aqui podemos criar uma tabela para armazenar as configurações de integração por usuário
-      const { data, error } = await supabase
-        .from('user_integrations')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('integration_type', 'asaas')
-        .single();
-
-      if (data && !error) {
-        setHasApiKey(true);
-      }
-    } catch (error) {
-      console.error('Error checking API key:', error);
-    }
-  };
 
   const testAsaasConnection = async () => {
     if (!asaasApiKey.trim()) {
@@ -90,45 +64,9 @@ export default function IntegrationsPanel() {
       return;
     }
 
-    setLoading(true);
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error("Usuário não autenticado");
-        return;
-      }
-
-      // Salvar a configuração da integração
-      const { error } = await supabase
-        .from('user_integrations')
-        .upsert({
-          user_id: user.id,
-          integration_type: 'asaas',
-          api_key: asaasApiKey, // Em produção, isso deveria ser criptografado
-          is_active: true,
-          updated_at: new Date().toISOString()
-        });
-
-      if (error) {
-        console.error('Error saving integration:', error);
-        toast.error("Erro ao salvar integração");
-        return;
-      }
-
-      setHasApiKey(true);
-      setAsaasApiKey("");
-      toast.success("Integração com Asaas configurada com sucesso!");
-    } catch (error) {
-      console.error('Error saving integration:', error);
-      toast.error("Erro inesperado ao salvar integração");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const removeAsaasIntegration = async () => {
-    if (!confirm("Tem certeza que deseja remover a integração com Asaas?")) {
+    // Primeiro testa a conexão
+    const connectionTest = await testAsaasConnection();
+    if (!connectionTest) {
       return;
     }
 
@@ -141,23 +79,26 @@ export default function IntegrationsPanel() {
         return;
       }
 
-      const { error } = await supabase
-        .from('user_integrations')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('integration_type', 'asaas');
+      // Salvar a API key como um secret do usuário usando edge function
+      const { data, error } = await supabase.functions.invoke('save-user-secret', {
+        body: {
+          secretName: 'ASAAS_API_KEY',
+          secretValue: asaasApiKey,
+          userId: user.id
+        }
+      });
 
       if (error) {
-        console.error('Error removing integration:', error);
-        toast.error("Erro ao remover integração");
+        console.error('Error saving integration:', error);
+        toast.error("Erro ao salvar integração");
         return;
       }
 
-      setHasApiKey(false);
-      toast.success("Integração removida com sucesso!");
+      setAsaasApiKey("");
+      toast.success("Integração com Asaas configurada com sucesso!");
     } catch (error) {
-      console.error('Error removing integration:', error);
-      toast.error("Erro inesperado ao remover integração");
+      console.error('Error saving integration:', error);
+      toast.error("Erro inesperado ao salvar integração");
     } finally {
       setLoading(false);
     }
@@ -169,7 +110,7 @@ export default function IntegrationsPanel() {
       name: "Asaas",
       description: "Plataforma de pagamentos e gestão financeira",
       icon: Plug,
-      isConnected: hasApiKey,
+      isConnected: false, // Por agora vamos deixar como false, pode ser melhorado depois
     }
   ];
 
@@ -208,7 +149,7 @@ export default function IntegrationsPanel() {
                         ) : (
                           <>
                             <XCircle className="h-3 w-3 mr-1" />
-                            Não conectado
+                            Configuração Manual
                           </>
                         )}
                       </Badge>
@@ -221,73 +162,66 @@ export default function IntegrationsPanel() {
             <CardContent className="space-y-4">
               {integration.id === "asaas" && (
                 <div className="space-y-4">
-                  {!hasApiKey ? (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="asaas-api-key">API Key do Asaas</Label>
-                        <div className="relative">
-                          <Input
-                            id="asaas-api-key"
-                            type={showApiKey ? "text" : "password"}
-                            value={asaasApiKey}
-                            onChange={(e) => setAsaasApiKey(e.target.value)}
-                            placeholder="Cole sua API Key do Asaas aqui"
-                            className="pr-10"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3"
-                            onClick={() => setShowApiKey(!showApiKey)}
-                          >
-                            {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </Button>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Você pode encontrar sua API Key no{" "}
-                          <a 
-                            href="https://www.asaas.com/api" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline inline-flex items-center gap-1"
-                          >
-                            painel do Asaas
-                            <ExternalLink className="h-3 w-3" />
-                          </a>
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={testAsaasConnection}
-                          variant="outline"
-                          disabled={testingConnection || !asaasApiKey.trim()}
-                        >
-                          {testingConnection ? "Testando..." : "Testar Conexão"}
-                        </Button>
-                        <Button
-                          onClick={saveAsaasIntegration}
-                          disabled={loading || !asaasApiKey.trim()}
-                        >
-                          {loading ? "Salvando..." : "Salvar Integração"}
-                        </Button>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                        Integração configurada e ativa
-                      </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="asaas-api-key">API Key do Asaas</Label>
+                    <div className="relative">
+                      <Input
+                        id="asaas-api-key"
+                        type={showApiKey ? "text" : "password"}
+                        value={asaasApiKey}
+                        onChange={(e) => setAsaasApiKey(e.target.value)}
+                        placeholder="Cole sua API Key do Asaas aqui"
+                        className="pr-10"
+                      />
                       <Button
-                        onClick={removeAsaasIntegration}
-                        variant="destructive"
-                        disabled={loading}
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowApiKey(!showApiKey)}
                       >
-                        {loading ? "Removendo..." : "Remover Integração"}
+                        {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
-                  )}
+                    <p className="text-sm text-muted-foreground">
+                      Você pode encontrar sua API Key no{" "}
+                      <a 
+                        href="https://www.asaas.com/api" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline inline-flex items-center gap-1"
+                      >
+                        painel do Asaas
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={testAsaasConnection}
+                      variant="outline"
+                      disabled={testingConnection || !asaasApiKey.trim()}
+                    >
+                      {testingConnection ? "Testando..." : "Testar Conexão"}
+                    </Button>
+                    <Button
+                      onClick={saveAsaasIntegration}
+                      disabled={loading || !asaasApiKey.trim()}
+                    >
+                      {loading ? "Salvando..." : "Salvar Integração"}
+                    </Button>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Zap className="h-4 w-4 text-primary" />
+                      <h4 className="font-medium">Sincronização de Dados</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Sincronize automaticamente seus dados do Asaas para atualizar suas métricas.
+                    </p>
+                    <AsaasSyncButton />
+                  </div>
                 </div>
               )}
             </CardContent>

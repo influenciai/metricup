@@ -146,6 +146,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_integrations: {
+        Row: {
+          api_key: string
+          config: Json | null
+          created_at: string
+          id: string
+          integration_type: string
+          is_active: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          config?: Json | null
+          created_at?: string
+          id?: string
+          integration_type: string
+          is_active?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          config?: Json | null
+          created_at?: string
+          id?: string
+          integration_type?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -69,6 +69,7 @@ export default function Dashboard() {
     { id: "gerenciar-dados", label: "Gerenciar Dados", icon: Database },
     { id: "metas", label: "Metas", icon: Target },
     { id: "alertas", label: "Alertas", icon: Bell },
+    { id: "integracoes", label: "Integrações", icon: Settings },
     { id: "clientes-atraso", label: "Clientes em Atraso", icon: AlertTriangle },
   ];
 
@@ -152,6 +153,8 @@ export default function Dashboard() {
             </Card>
           </div>
         );
+      case "integracoes":
+        return <IntegrationsPanel />;
       default:
         return renderDashboard();
     }
