@@ -65,6 +65,9 @@ export default function Dashboard() {
     );
   }
 
+  // Verificar se é super admin
+  const isSuperAdmin = user?.email === 'ghenriquealm@gmail.com';
+
   const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "gerenciar-dados", label: "Gerenciar Dados", icon: Database },
@@ -73,6 +76,7 @@ export default function Dashboard() {
     { id: "clientes-atraso", label: "Clientes em Atraso", icon: AlertTriangle },
     { id: "metas", label: "Metas", icon: Target },
     { id: "integracoes", label: "Integrações", icon: Settings },
+    ...(isSuperAdmin ? [{ id: "super-admin", label: "Super Admin", icon: Settings, className: "text-red-500 font-bold" }] : []),
   ];
 
   const metricsItems = [
@@ -157,6 +161,10 @@ export default function Dashboard() {
         );
       case "integracoes":
         return <IntegrationsPanel />;
+      case "super-admin":
+        // Redirecionar para página específica de super admin
+        window.location.href = '/super-admin';
+        return null;
       default:
         return renderDashboard();
     }
