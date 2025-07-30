@@ -112,19 +112,43 @@ serve(async (req) => {
     const subscriptions: AsaasSubscription[] = subscriptionsData.data || [];
     logStep("Assinaturas encontradas", { count: subscriptions.length });
 
-    // Buscar pagamentos
-    const paymentsResponse = await fetch(
-      `https://www.asaas.com/api/v3/payments?limit=100&dateCreated[ge]=${startDate}`,
-      { headers: asaasHeaders }
-    );
+    // Buscar todos os pagamentos recebidos dos últimos 12 meses
+    let allPayments: AsaasPayment[] = [];
+    let offset = 0;
+    const limit = 100;
     
-    if (!paymentsResponse.ok) {
-      throw new Error(`Erro ao buscar pagamentos: ${paymentsResponse.status}`);
-    }
+    logStep("Iniciando busca de pagamentos recebidos");
+    
+    // Buscar pagamentos em lotes
+    while (true) {
+      const paymentsResponse = await fetch(
+        `https://www.asaas.com/api/v3/payments?status=RECEIVED&limit=${limit}&offset=${offset}&paymentDate[ge]=${startDate}`,
+        { headers: asaasHeaders }
+      );
+      
+      if (!paymentsResponse.ok) {
+        throw new Error(`Erro ao buscar pagamentos: ${paymentsResponse.status}`);
+      }
 
-    const paymentsData = await paymentsResponse.json();
-    const payments: AsaasPayment[] = paymentsData.data || [];
-    logStep("Pagamentos encontrados", { count: payments.length });
+      const paymentsData = await paymentsResponse.json();
+      const batchPayments: AsaasPayment[] = paymentsData.data || [];
+      
+      if (batchPayments.length === 0) break;
+      
+      allPayments = allPayments.concat(batchPayments);
+      offset += limit;
+      
+      logStep(`Lote de pagamentos obtido`, { 
+        batchSize: batchPayments.length, 
+        totalSoFar: allPayments.length,
+        offset 
+      });
+      
+      // Parar se retornou menos que o limite (último lote)
+      if (batchPayments.length < limit) break;
+    }
+    
+    logStep("Todos os pagamentos recebidos encontrados", { total: allPayments.length });
 
     // Processar métricas mês a mês
     const metrics = [];
@@ -136,10 +160,10 @@ serve(async (req) => {
       const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
       const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
 
-      // Filtrar pagamentos do mês
-      const monthPayments = payments.filter(p => {
+      // Filtrar pagamentos do mês usando os dados corretos
+      const monthPayments = allPayments.filter(p => {
         const paymentDate = new Date(p.paymentDate || p.dateCreated);
-        return paymentDate >= monthStart && paymentDate <= monthEnd && p.status === 'RECEIVED';
+        return paymentDate >= monthStart && paymentDate <= monthEnd;
       });
 
       // Filtrar clientes novos do mês
@@ -152,8 +176,29 @@ serve(async (req) => {
       const subscriptionPayments = monthPayments.filter(p => p.subscription);
       const mrr = subscriptionPayments.reduce((sum, p) => sum + p.value, 0);
 
-      // Calcular receita total
+      // Calcular pagamentos únicos (não recorrentes) - PIX, boleto único, etc.
+      const oneTimePayments = monthPayments.filter(p => !p.subscription);
+      const oneTimeRevenue = oneTimePayments.reduce((sum, p) => sum + p.value, 0);
+
+      // Calcular receita total (MRR + pagamentos únicos)
       const totalRevenue = monthPayments.reduce((sum, p) => sum + p.value, 0);
+      
+      // Log detalhado para debug
+      if (i === 0) { // Log apenas do mês atual
+        logStep("Detalhes do mês atual", {
+          month: monthStr,
+          totalPayments: monthPayments.length,
+          subscriptionPayments: subscriptionPayments.length,
+          oneTimePayments: oneTimePayments.length,
+          mrr,
+          oneTimeRevenue,
+          totalRevenue,
+          paymentTypes: monthPayments.reduce((acc, p) => {
+            acc[p.billingType] = (acc[p.billingType] || 0) + p.value;
+            return acc;
+          }, {} as Record<string, number>)
+        });
+      }
 
       // Calcular nova receita (pagamentos de clientes novos)
       const newCustomerIds = newCustomers.map(c => c.id);
