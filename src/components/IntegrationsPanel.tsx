@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,31 @@ export default function IntegrationsPanel() {
   const [asaasApiKey, setAsaasApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [testingConnection, setTestingConnection] = useState(false);
+  const [hasAsaasIntegration, setHasAsaasIntegration] = useState(false);
+
+  useEffect(() => {
+    checkAsaasIntegration();
+  }, []);
+
+  const checkAsaasIntegration = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('user_integrations')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('integration_type', 'asaas')
+        .eq('is_active', true)
+        .single();
+
+      setHasAsaasIntegration(!!data && !error);
+    } catch (error) {
+      console.error('Error checking Asaas integration:', error);
+      setHasAsaasIntegration(false);
+    }
+  };
 
   const testAsaasConnection = async () => {
     if (!asaasApiKey.trim()) {
@@ -95,6 +120,7 @@ export default function IntegrationsPanel() {
       }
 
       setAsaasApiKey("");
+      setHasAsaasIntegration(true);
       toast.success("Integração com Asaas configurada com sucesso!");
     } catch (error) {
       console.error('Error saving integration:', error);
@@ -110,7 +136,7 @@ export default function IntegrationsPanel() {
       name: "Asaas",
       description: "Plataforma de pagamentos e gestão financeira",
       icon: Plug,
-      isConnected: false, // Por agora vamos deixar como false, pode ser melhorado depois
+      isConnected: hasAsaasIntegration,
     }
   ];
 
@@ -149,7 +175,7 @@ export default function IntegrationsPanel() {
                         ) : (
                           <>
                             <XCircle className="h-3 w-3 mr-1" />
-                            Configuração Manual
+                            Não conectado
                           </>
                         )}
                       </Badge>
@@ -212,16 +238,18 @@ export default function IntegrationsPanel() {
                     </Button>
                   </div>
 
-                  <div className="border-t pt-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Zap className="h-4 w-4 text-primary" />
-                      <h4 className="font-medium">Sincronização de Dados</h4>
+                  {hasAsaasIntegration && (
+                    <div className="border-t pt-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Zap className="h-4 w-4 text-primary" />
+                        <h4 className="font-medium">Sincronização de Dados</h4>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Sincronize automaticamente seus dados do Asaas para atualizar suas métricas.
+                      </p>
+                      <AsaasSyncButton onSyncComplete={checkAsaasIntegration} />
                     </div>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Sincronize automaticamente seus dados do Asaas para atualizar suas métricas.
-                    </p>
-                    <AsaasSyncButton />
-                  </div>
+                  )}
                 </div>
               )}
             </CardContent>

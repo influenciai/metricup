@@ -43,7 +43,7 @@ import { calculateGrowthRate, formatCurrency } from "@/lib/startup-data";
 import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
 import { StartupMetrics } from "@/types/startup-metrics";
-import AsaasSyncButton from "@/components/AsaasSyncButton";
+
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("dashboard");
@@ -599,7 +599,6 @@ export default function Dashboard() {
               <Button variant="ghost" size="sm" onClick={refreshData} className="text-xs">
                 <RefreshCw className="h-4 w-4" />
               </Button>
-              <AsaasSyncButton onSyncComplete={refreshData} />
               <div className="text-xs text-muted-foreground">
                 Última atualização: {new Date().toLocaleDateString('pt-BR', { 
                   day: '2-digit', 
