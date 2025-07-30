@@ -22,7 +22,7 @@ import {
   TrendingDown,
   Activity
 } from "lucide-react";
-import metricupLogo from "@/assets/metricup-logo-official.png";
+import metricupLogo from "/lovable-uploads/da5e7f09-9c4b-43d3-bfdf-4f9a003ee925.png";
 import MetricsCard from "@/components/MetricsCard";
 import StatsCard from "@/components/StatsCard";
 import BurnRateChart from "@/components/BurnRateChart";
@@ -40,7 +40,6 @@ import MetricsTable from "@/components/MetricsTable";
 import GoalsForm from "@/components/GoalsForm";
 import OverdueCustomersPanel from "@/components/OverdueCustomersPanel";
 import IntegrationsPanel from "@/components/IntegrationsPanel";
-import LogoUpload from "@/components/LogoUpload";
 import { useStartupMetrics } from "@/hooks/useStartupMetrics";
 import { calculateGrowthRate, formatCurrency } from "@/lib/startup-data";
 import { useAuth } from "@/contexts/AuthContext";
@@ -74,7 +73,6 @@ export default function Dashboard() {
     { id: "clientes-atraso", label: "Clientes em Atraso", icon: AlertTriangle },
     { id: "metas", label: "Metas", icon: Target },
     { id: "integracoes", label: "Integrações", icon: Settings },
-    { id: "logo-upload", label: "Logo da Empresa", icon: Settings },
   ];
 
   const metricsItems = [
@@ -159,16 +157,6 @@ export default function Dashboard() {
         );
       case "integracoes":
         return <IntegrationsPanel />;
-      case "logo-upload":
-        return (
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold">Logo da Empresa</h2>
-              <p className="text-gray-600">Faça upload da logo oficial da MetricUp</p>
-            </div>
-            <LogoUpload />
-          </div>
-        );
       default:
         return renderDashboard();
     }

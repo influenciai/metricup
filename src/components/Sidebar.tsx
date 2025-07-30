@@ -18,7 +18,7 @@ import {
   Database,
   UserX
 } from "lucide-react";
-import metricupLogo from "@/assets/metricup-logo-official.png";
+import metricupLogo from "/lovable-uploads/da5e7f09-9c4b-43d3-bfdf-4f9a003ee925.png";
 
 interface SidebarLinkProps {
   icon: React.ElementType;
