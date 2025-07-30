@@ -43,6 +43,11 @@
     --sidebar-accent-foreground: 220.9 39.3% 11%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 224 71.4% 4.1%;
+
+    /* Metric colors */
+    --metric-blue: 221 83% 53%;
+    --metric-green: 142 76% 36%;
+    --metric-red: 0 84% 60%;
   }
 
   * {

@@ -381,28 +381,38 @@ export default function Dashboard() {
           value={formatCurrency(latestMetrics?.mrr || 0)}
           change={calculateGrowthRate(latestMetrics?.mrr || 0, previousMetrics?.mrr || 0)}
           icon={<TrendingUp size={20} />}
-          colorClass="from-green-500/20 to-green-600/5"
+          colorClass="from-blue-500/20 to-blue-600/5"
         />
         <StatsCard
           title="Taxa de Churn"
           value={`${(latestMetrics?.churn || 0).toFixed(1)}%`}
           change={-calculateGrowthRate(latestMetrics?.churn || 0, previousMetrics?.churn || 0)}
           icon={<AlertTriangle size={20} />}
-          colorClass="from-red-500/20 to-red-600/5"
+          colorClass={(() => {
+            const churnRate = latestMetrics?.churn || 0;
+            const churnTarget = 5; // Meta de 5%
+            return churnRate <= churnTarget ? "from-green-500/20 to-green-600/5" : "from-red-500/20 to-red-600/5";
+          })()}
         />
         <StatsCard
           title="Novos Clientes"
           value={String(latestMetrics?.newCustomers || 0)}
           change={calculateGrowthRate(latestMetrics?.newCustomers || 0, previousMetrics?.newCustomers || 0)}
           icon={<Users size={20} />}
-          colorClass="from-blue-500/20 to-blue-600/5"
+          colorClass={(() => {
+            const newCustomers = latestMetrics?.newCustomers || 0;
+            const target = 10; // Meta exemplo
+            if (newCustomers < target * 0.8) return "from-red-500/20 to-red-600/5";
+            if (newCustomers >= target * 1.2) return "from-green-500/20 to-green-600/5";
+            return "from-blue-500/20 to-blue-600/5";
+          })()}
         />
         <StatsCard
           title="Clientes Ativos"
           value={String(latestMetrics?.totalCustomers || 0)}
           change={calculateGrowthRate(latestMetrics?.totalCustomers || 0, previousMetrics?.totalCustomers || 0)}
           icon={<Users size={20} />}
-          colorClass="from-cyan-500/20 to-cyan-600/5"
+          colorClass="from-blue-500/20 to-blue-600/5"
         />
         <StatsCard
           title="LTV (Lifetime Value)"
@@ -420,7 +430,7 @@ export default function Dashboard() {
             <CardTitle className="text-lg">Nova Receita</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(latestMetrics?.newRevenue || 0)}</div>
+            <div className="text-2xl font-bold text-green-600">{formatCurrency(latestMetrics?.newRevenue || 0)}</div>
           </CardContent>
         </Card>
         
@@ -429,7 +439,7 @@ export default function Dashboard() {
             <CardTitle className="text-lg">Receita Total</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(latestMetrics?.totalRevenue || 0)}</div>
+            <div className="text-2xl font-bold text-blue-600">{formatCurrency(latestMetrics?.totalRevenue || 0)}</div>
             <div className="text-sm text-green-500 mt-1">
               ↗ {calculateGrowthRate(latestMetrics?.totalRevenue || 0, previousMetrics?.totalRevenue || 0).toFixed(1)}% vs mês anterior
             </div>
@@ -441,7 +451,7 @@ export default function Dashboard() {
             <CardTitle className="text-lg">Burn Rate Total</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(latestMetrics?.burnRate?.total || 0)}</div>
+            <div className="text-2xl font-bold text-red-600">{formatCurrency(latestMetrics?.burnRate?.total || 0)}</div>
             <div className="text-sm text-muted-foreground mt-1">Gastos mensais totais</div>
           </CardContent>
         </Card>
