@@ -14,7 +14,9 @@ import {
   AlertTriangle,
   FileText,
   BarChart3,
-  Plug
+  Plug,
+  Database,
+  UserX
 } from "lucide-react";
 
 interface SidebarLinkProps {
@@ -105,6 +107,13 @@ export default function Sidebar({ className }: SidebarProps) {
             onClick={() => setActiveLink("Métricas")}
           />
           <SidebarLink 
+            icon={Database} 
+            label="Gerenciar Dados" 
+            active={activeLink === "Gerenciar Dados"}
+            collapsed={collapsed}
+            onClick={() => setActiveLink("Gerenciar Dados")}
+          />
+          <SidebarLink 
             icon={PlusCircle} 
             label="Inserir Dados" 
             active={activeLink === "Inserir Dados"}
@@ -112,18 +121,25 @@ export default function Sidebar({ className }: SidebarProps) {
             onClick={() => setActiveLink("Inserir Dados")}
           />
           <SidebarLink 
-            icon={Target} 
-            label="Metas" 
-            active={activeLink === "Metas"}
-            collapsed={collapsed}
-            onClick={() => setActiveLink("Metas")}
-          />
-          <SidebarLink 
             icon={AlertTriangle} 
             label="Alertas" 
             active={activeLink === "Alertas"}
             collapsed={collapsed}
             onClick={() => setActiveLink("Alertas")}
+          />
+          <SidebarLink 
+            icon={UserX} 
+            label="Clientes em Atraso" 
+            active={activeLink === "Clientes em Atraso"}
+            collapsed={collapsed}
+            onClick={() => setActiveLink("Clientes em Atraso")}
+          />
+          <SidebarLink 
+            icon={Target} 
+            label="Metas" 
+            active={activeLink === "Metas"}
+            collapsed={collapsed}
+            onClick={() => setActiveLink("Metas")}
           />
           <SidebarLink 
             icon={Plug} 
