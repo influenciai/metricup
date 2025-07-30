@@ -9,6 +9,7 @@ interface StatsCardProps {
   change: number;
   icon?: ReactNode;
   colorClass?: string;
+  valueColor?: string;
   animationDelay?: string;
 }
 
@@ -18,6 +19,7 @@ export default function StatsCard({
   change, 
   icon, 
   colorClass = "from-blue-500/20 to-blue-600/5",
+  valueColor = "text-foreground",
   animationDelay = "0ms"
 }: StatsCardProps) {
   const isPositive = change >= 0;
@@ -30,7 +32,7 @@ export default function StatsCard({
       <div className="flex justify-between items-start">
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
-          <div className="text-2xl font-semibold text-foreground">{value}</div>
+          <div className={cn("text-2xl font-semibold", valueColor)}>{value}</div>
           <div className={cn(
             "flex items-center text-sm font-medium",
             isPositive ? "text-emerald-600" : "text-red-500"

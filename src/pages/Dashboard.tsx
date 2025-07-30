@@ -382,6 +382,7 @@ export default function Dashboard() {
           change={calculateGrowthRate(latestMetrics?.mrr || 0, previousMetrics?.mrr || 0)}
           icon={<TrendingUp size={20} />}
           colorClass="from-blue-500/20 to-blue-600/5"
+          valueColor="text-blue-600"
         />
         <StatsCard
           title="Taxa de Churn"
@@ -392,6 +393,11 @@ export default function Dashboard() {
             const churnRate = latestMetrics?.churn || 0;
             const churnTarget = 5; // Meta de 5%
             return churnRate <= churnTarget ? "from-green-500/20 to-green-600/5" : "from-red-500/20 to-red-600/5";
+          })()}
+          valueColor={(() => {
+            const churnRate = latestMetrics?.churn || 0;
+            const churnTarget = 5; // Meta de 5%
+            return churnRate <= churnTarget ? "text-green-600" : "text-red-600";
           })()}
         />
         <StatsCard
@@ -406,6 +412,13 @@ export default function Dashboard() {
             if (newCustomers >= target * 1.2) return "from-green-500/20 to-green-600/5";
             return "from-blue-500/20 to-blue-600/5";
           })()}
+          valueColor={(() => {
+            const newCustomers = latestMetrics?.newCustomers || 0;
+            const target = 10; // Meta exemplo
+            if (newCustomers < target * 0.8) return "text-red-600";
+            if (newCustomers >= target * 1.2) return "text-green-600";
+            return "text-blue-600";
+          })()}
         />
         <StatsCard
           title="Clientes Ativos"
@@ -413,6 +426,7 @@ export default function Dashboard() {
           change={calculateGrowthRate(latestMetrics?.totalCustomers || 0, previousMetrics?.totalCustomers || 0)}
           icon={<Users size={20} />}
           colorClass="from-blue-500/20 to-blue-600/5"
+          valueColor="text-blue-600"
         />
         <StatsCard
           title="LTV (Lifetime Value)"
@@ -420,6 +434,7 @@ export default function Dashboard() {
           change={calculateGrowthRate(latestMetrics?.ltv || 0, previousMetrics?.ltv || 0)}
           icon={<DollarSign size={20} />}
           colorClass="from-purple-500/20 to-purple-600/5"
+          valueColor="text-blue-600"
         />
       </div>
 
