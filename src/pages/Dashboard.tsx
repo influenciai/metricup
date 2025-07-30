@@ -22,6 +22,7 @@ import {
   TrendingDown,
   Activity
 } from "lucide-react";
+import metricupLogo from "@/assets/metricup-logo.png";
 import MetricsCard from "@/components/MetricsCard";
 import StatsCard from "@/components/StatsCard";
 import BurnRateChart from "@/components/BurnRateChart";
@@ -549,10 +550,7 @@ export default function Dashboard() {
         {/* Logo */}
         <div className="p-5 border-b border-sidebar-border">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-sidebar-primary rounded-lg flex items-center justify-center">
-              <BarChart3 className="h-5 w-5 text-sidebar-primary-foreground" />
-            </div>
-            <span className="text-lg font-semibold text-sidebar-foreground">StartupFlow</span>
+            <img src={metricupLogo} alt="MetricUp" className="h-8" />
           </div>
         </div>
 
