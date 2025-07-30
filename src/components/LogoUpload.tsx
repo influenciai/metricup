@@ -1,14 +1,41 @@
 import React, { useState } from 'react';
-import { Upload, Check, X } from 'lucide-react';
+import { Upload, Check, X, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LogoUpload() {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  // Verificar se o usuário é super admin
+  const isSuperAdmin = user?.email === 'ghenriquealm@gmail.com';
+
+  if (!isSuperAdmin) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-red-500" />
+            Acesso Restrito
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Alert>
+            <Shield className="h-4 w-4" />
+            <AlertDescription>
+              Apenas o super administrador pode fazer upload da logo da empresa.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
