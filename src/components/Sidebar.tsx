@@ -12,7 +12,8 @@ import {
   PlusCircle,
   Target,
   AlertTriangle,
-  FileText
+  FileText,
+  BarChart3
 } from "lucide-react";
 
 interface SidebarLinkProps {
@@ -94,6 +95,13 @@ export default function Sidebar({ className }: SidebarProps) {
             active={activeLink === "Dashboard"}
             collapsed={collapsed}
             onClick={() => setActiveLink("Dashboard")}
+          />
+          <SidebarLink 
+            icon={BarChart3} 
+            label="Métricas" 
+            active={activeLink === "Métricas"}
+            collapsed={collapsed}
+            onClick={() => setActiveLink("Métricas")}
           />
           <SidebarLink 
             icon={PlusCircle} 
