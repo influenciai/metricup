@@ -3,11 +3,18 @@ import { StartupMetrics, StartupGoals, MetricsPrediction, Alert } from "@/types/
 import { mockStartupGoals, getCurrentCash, calculateGrowthRate } from "@/lib/startup-data";
 import { supabase } from "@/integrations/supabase/client";
 
+interface OverdueData {
+  totalValue: number;
+  totalCustomers: number;
+  criticalCount: number;
+}
+
 export function useStartupMetrics() {
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState<StartupMetrics[]>([]);
   const [goals, setGoals] = useState<StartupGoals>(mockStartupGoals);
   const [error, setError] = useState<string | null>(null);
+  const [overdueData, setOverdueData] = useState<OverdueData | null>(null);
 
   useEffect(() => {
     loadData();
@@ -16,7 +23,7 @@ export function useStartupMetrics() {
   const loadData = async () => {
     try {
       setLoading(true);
-      await Promise.all([loadMetrics(), loadGoals()]);
+      await Promise.all([loadMetrics(), loadGoals(), loadOverdueData()]);
     } catch (error) {
       console.error('Error loading data:', error);
       setError('Erro ao carregar dados');
@@ -92,6 +99,21 @@ export function useStartupMetrics() {
         newCustomersGrowthTarget: Number(data.new_customers_growth_target),
         maxChurnRate: Number(data.max_churn_rate)
       });
+    }
+  };
+
+  const loadOverdueData = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-overdue-customers');
+      
+      if (error) {
+        console.error('Error loading overdue data:', error);
+        return;
+      }
+      
+      setOverdueData(data);
+    } catch (error) {
+      console.error('Error loading overdue data:', error);
     }
   };
 
@@ -171,6 +193,32 @@ export function useStartupMetrics() {
         message: `Crescimento de ${customerGrowth.toFixed(1)}% está abaixo da meta de ${goals.newCustomersGrowthTarget}%`,
         priority: "medium"
       });
+    }
+
+    // Check overdue payments
+    if (overdueData) {
+      if (overdueData.totalValue > 0) {
+        const formatCurrency = (value: number) => 
+          new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        
+        alerts.push({
+          id: "overdue-payments",
+          type: overdueData.criticalCount > 5 ? "danger" : "warning",
+          title: "Faturas em atraso",
+          message: `${overdueData.totalCustomers} clientes com ${formatCurrency(overdueData.totalValue)} em atraso. ${overdueData.criticalCount} críticos (+15 dias)`,
+          priority: overdueData.criticalCount > 5 ? "high" : "medium"
+        });
+      }
+      
+      if (overdueData.criticalCount > 10) {
+        alerts.push({
+          id: "critical-overdue",
+          type: "danger",
+          title: "Alto risco de churn",
+          message: `${overdueData.criticalCount} clientes com atraso crítico. Ação imediata necessária!`,
+          priority: "high"
+        });
+      }
     }
 
     return {
