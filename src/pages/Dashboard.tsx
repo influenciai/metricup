@@ -32,6 +32,7 @@ import AddMetricsForm from "@/components/AddMetricsForm";
 import EditMetricsForm from "@/components/EditMetricsForm";
 import MetricsTable from "@/components/MetricsTable";
 import GoalsForm from "@/components/GoalsForm";
+import OverdueCustomersPanel from "@/components/OverdueCustomersPanel";
 import { useStartupMetrics } from "@/hooks/useStartupMetrics";
 import { calculateGrowthRate, formatCurrency } from "@/lib/startup-data";
 import { useAuth } from "@/contexts/AuthContext";
@@ -62,6 +63,7 @@ export default function Dashboard() {
     { id: "gerenciar-dados", label: "Gerenciar Dados", icon: Database },
     { id: "metas", label: "Metas", icon: Target },
     { id: "alertas", label: "Alertas", icon: Bell },
+    { id: "clientes-atraso", label: "Clientes em Atraso", icon: AlertTriangle },
   ];
 
   const renderMainContent = () => {
@@ -91,6 +93,8 @@ export default function Dashboard() {
         );
       case "metas":
         return <GoalsForm onSuccess={refreshData} />;
+      case "clientes-atraso":
+        return <OverdueCustomersPanel />;
       case "alertas":
         return (
           <div className="space-y-6">

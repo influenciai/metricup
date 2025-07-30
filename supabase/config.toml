@@ -36,5 +36,8 @@ enable_signup = true
 [functions.asaas-sync]
 verify_jwt = true
 
+[functions.get-overdue-customers]
+verify_jwt = true
+
 [edge_runtime]
 ip_version = "ipv4"
