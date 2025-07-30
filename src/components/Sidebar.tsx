@@ -18,6 +18,7 @@ import {
   Database,
   UserX
 } from "lucide-react";
+import metricupLogo from "@/assets/metricup-logo.png";
 
 interface SidebarLinkProps {
   icon: React.ElementType;
@@ -72,11 +73,11 @@ export default function Sidebar({ className }: SidebarProps) {
           "flex items-center gap-2",
           collapsed && "justify-center"
         )}>
-          <div className="h-8 w-8 rounded-md bg-primary/90 flex items-center justify-center">
-            <BarChart4 size={18} className="text-primary-foreground" />
-          </div>
           {!collapsed && (
-            <h1 className="font-semibold text-xl text-sidebar-foreground">Scale<span className="text-primary">Dash</span></h1>
+            <img src={metricupLogo} alt="MetricUp" className="h-8" />
+          )}
+          {collapsed && (
+            <img src={metricupLogo} alt="MetricUp" className="h-8" />
           )}
         </div>
       </div>

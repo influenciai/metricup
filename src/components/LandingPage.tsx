@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import metricupLogo from "@/assets/metricup-logo.png";
 
 const mockMrrData = [
   { month: "Jan", mrr: 15000 },
@@ -113,8 +114,7 @@ export default function LandingPage({ onLogin, onSignup }: LandingPageProps) {
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <BarChart3 className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-primary">MetricUp</span>
+            <img src={metricupLogo} alt="MetricUp" className="h-8" />
           </div>
           <div className="flex items-center space-x-4">
             <Button variant="ghost" size="sm">
@@ -439,8 +439,7 @@ export default function LandingPage({ onLogin, onSignup }: LandingPageProps) {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <BarChart3 className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold">MetricUp</span>
+              <img src={metricupLogo} alt="MetricUp" className="h-6" />
             </div>
             <div className="flex space-x-6 text-sm text-muted-foreground">
               <a href="#" className="hover:text-primary">Contato</a>
