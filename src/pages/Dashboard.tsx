@@ -33,6 +33,7 @@ import AlertsPanel from "@/components/AlertsPanel";
 import CashFlowIndicator from "@/components/CashFlowIndicator";
 import TrendingSection from "@/components/TrendingSection";
 import AddMetricsForm from "@/components/AddMetricsForm";
+import DynamicDataInsert from "@/components/DynamicDataInsert";
 import EditMetricsForm from "@/components/EditMetricsForm";
 import MetricsTable from "@/components/MetricsTable";
 import GoalsForm from "@/components/GoalsForm";
@@ -98,7 +99,7 @@ export default function Dashboard() {
 
     switch (activeSection) {
       case "inserir-dados":
-        return <AddMetricsForm onSuccess={refreshData} />;
+        return <DynamicDataInsert onSuccess={refreshData} />;
       case "gerenciar-dados":
         return (
           <MetricsTable 
