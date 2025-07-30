@@ -271,31 +271,31 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
-      <div className="w-64 bg-card border-r border-border flex flex-col">
+      <div className="w-64 bg-sidebar-background border-r border-sidebar-border flex flex-col">
         {/* Logo */}
-        <div className="p-6 border-b border-border">
+        <div className="p-5 border-b border-sidebar-border">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <BarChart3 className="h-5 w-5 text-primary-foreground" />
+            <div className="w-8 h-8 bg-sidebar-primary rounded-lg flex items-center justify-center">
+              <BarChart3 className="h-5 w-5 text-sidebar-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-foreground">ScaleDash</span>
+            <span className="text-lg font-semibold text-sidebar-foreground">StartupFlow</span>
           </div>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 p-4">
-          <div className="space-y-2">
+          <div className="space-y-1">
             {sidebarItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setActiveSection(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm ${
                   activeSection === item.id
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm font-medium"
+                    : "text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent/50"
                 }`}
               >
-                <item.icon className="h-5 w-5" />
+                <item.icon className="h-4 w-4" />
                 {item.label}
               </button>
             ))}
@@ -303,10 +303,10 @@ export default function Dashboard() {
         </nav>
 
         {/* Settings */}
-        <div className="p-4 border-t border-border">
-          <Button variant="ghost" className="w-full justify-start" onClick={signOut}>
-            <Settings className="h-5 w-5 mr-3" />
-            Settings
+        <div className="p-4 border-t border-sidebar-border">
+          <Button variant="ghost" className="w-full justify-start text-sm" onClick={signOut}>
+            <LogOut className="h-4 w-4 mr-3" />
+            Sair
           </Button>
         </div>
       </div>
@@ -314,30 +314,33 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="bg-card border-b border-border px-6 py-4">
+        <header className="bg-sidebar-background border-b border-sidebar-border px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={refreshData} className="text-xs">
                 <RefreshCw className="h-4 w-4" />
               </Button>
-              <div className="text-sm text-muted-foreground">
-                Controle financeiro da sua startup • {new Date().toLocaleDateString('pt-BR', { 
+              <div className="text-xs text-muted-foreground">
+                Última atualização: {new Date().toLocaleDateString('pt-BR', { 
                   day: '2-digit', 
-                  month: 'long', 
+                  month: 'short', 
                   year: 'numeric' 
+                })} • {new Date().toLocaleTimeString('pt-BR', { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
                 })}
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                 <Bell className="h-4 w-4" />
               </Button>
               <div className="relative">
                 <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
                 <Input 
-                  placeholder="Buscar métricas..." 
-                  className="pl-10 w-64"
+                  placeholder="Buscar..." 
+                  className="pl-9 w-56 h-8 text-xs"
                 />
               </div>
             </div>
@@ -345,7 +348,7 @@ export default function Dashboard() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-6 overflow-auto bg-background">
           {renderMainContent()}
         </main>
       </div>
