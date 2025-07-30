@@ -370,12 +370,6 @@ export default function Dashboard() {
 
   const renderDashboard = () => (
     <div className="space-y-6">
-      {/* Título do Dashboard */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Dashboard de Métricas</h1>
-        <p className="text-muted-foreground">Controle financeiro e indicadores de crescimento da sua startup</p>
-      </div>
-
       {/* Cards de métricas principais */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
