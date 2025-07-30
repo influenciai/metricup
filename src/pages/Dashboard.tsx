@@ -65,7 +65,6 @@ export default function Dashboard() {
 
   const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
-    { id: "metricas", label: "Métricas", icon: BarChart3 },
     { id: "gerenciar-dados", label: "Gerenciar Dados", icon: Database },
     { id: "inserir-dados", label: "Inserir Dados", icon: Plus },
     { id: "alertas", label: "Alertas", icon: Bell },
@@ -98,16 +97,6 @@ export default function Dashboard() {
     }
 
     switch (activeSection) {
-      case "metricas":
-        return (
-          <MetricsEvolutionChart 
-            data={metrics || []} 
-            metric="mrr" 
-            title="Evolução MRR"
-            description="Receita recorrente mensal nos últimos 12 meses"
-            isCurrency={true}
-          />
-        );
       case "inserir-dados":
         return <AddMetricsForm onSuccess={refreshData} />;
       case "gerenciar-dados":
@@ -569,23 +558,21 @@ export default function Dashboard() {
         {/* Navigation */}
         <nav className="flex-1 p-4">
           <div className="space-y-1">
-            {sidebarItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveSection(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm ${
-                  activeSection === item.id
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm font-medium"
-                    : "text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent/50"
-                }`}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </button>
-            ))}
+            {/* Dashboard - posição 1 */}
+            <button
+              onClick={() => setActiveSection("dashboard")}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm ${
+                activeSection === "dashboard"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm font-medium"
+                  : "text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent/50"
+              }`}
+            >
+              <Home className="h-4 w-4" />
+              Dashboard
+            </button>
 
-            {/* Menu expansível de Métricas */}
-            <div className="mt-4">
+            {/* Métricas - posição 2 (Menu expansível principal) */}
+            <div>
               <button
                 onClick={() => setMetricsMenuOpen(!metricsMenuOpen)}
                 className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent/50"
@@ -621,6 +608,22 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
+
+            {/* Demais itens nas posições 3-8 */}
+            {sidebarItems.slice(1).map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm ${
+                  activeSection === item.id
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm font-medium"
+                    : "text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent/50"
+                }`}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </button>
+            ))}
           </div>
         </nav>
 
