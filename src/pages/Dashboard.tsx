@@ -65,12 +65,13 @@ export default function Dashboard() {
 
   const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
-    { id: "inserir-dados", label: "Inserir Dados", icon: Plus },
+    { id: "metricas", label: "Métricas", icon: BarChart3 },
     { id: "gerenciar-dados", label: "Gerenciar Dados", icon: Database },
-    { id: "metas", label: "Metas", icon: Target },
+    { id: "inserir-dados", label: "Inserir Dados", icon: Plus },
     { id: "alertas", label: "Alertas", icon: Bell },
-    { id: "integracoes", label: "Integrações", icon: Settings },
     { id: "clientes-atraso", label: "Clientes em Atraso", icon: AlertTriangle },
+    { id: "metas", label: "Metas", icon: Target },
+    { id: "integracoes", label: "Integrações", icon: Settings },
   ];
 
   const metricsItems = [
@@ -97,6 +98,16 @@ export default function Dashboard() {
     }
 
     switch (activeSection) {
+      case "metricas":
+        return (
+          <MetricsEvolutionChart 
+            data={metrics || []} 
+            metric="mrr" 
+            title="Evolução MRR"
+            description="Receita recorrente mensal nos últimos 12 meses"
+            isCurrency={true}
+          />
+        );
       case "inserir-dados":
         return <AddMetricsForm onSuccess={refreshData} />;
       case "gerenciar-dados":
