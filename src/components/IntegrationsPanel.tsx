@@ -59,15 +59,18 @@ export default function IntegrationsPanel() {
     setTestingConnection(true);
     
     try {
-      // Teste básico da API do Asaas
-      const response = await fetch('https://sandbox.asaas.com/api/v3/customers?limit=1', {
-        headers: {
-          'access_token': asaasApiKey,
-          'Content-Type': 'application/json'
-        }
+      // Usar edge function para testar a conexão (evita problemas de CORS)
+      const { data, error } = await supabase.functions.invoke('test-asaas-connection', {
+        body: { apiKey: asaasApiKey }
       });
 
-      if (response.ok) {
+      if (error) {
+        console.error('Error testing Asaas connection:', error);
+        toast.error("Erro ao testar conexão com Asaas. Verifique sua API Key.");
+        return false;
+      }
+
+      if (data?.success) {
         toast.success("Conexão com Asaas testada com sucesso!");
         return true;
       } else {
@@ -104,14 +107,16 @@ export default function IntegrationsPanel() {
         return;
       }
 
-      // Salvar a API key como um secret do usuário usando edge function
-      const { data, error } = await supabase.functions.invoke('save-user-secret', {
-        body: {
-          secretName: 'ASAAS_API_KEY',
-          secretValue: asaasApiKey,
-          userId: user.id
-        }
-      });
+      // Salvar a API key diretamente na tabela user_integrations
+      const { error } = await supabase
+        .from('user_integrations')
+        .upsert({
+          user_id: user.id,
+          integration_type: 'asaas',
+          api_key: asaasApiKey,
+          is_active: true,
+          updated_at: new Date().toISOString()
+        });
 
       if (error) {
         console.error('Error saving integration:', error);
