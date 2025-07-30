@@ -13,7 +13,8 @@ import {
   Target,
   AlertTriangle,
   FileText,
-  BarChart3
+  BarChart3,
+  Plug
 } from "lucide-react";
 
 interface SidebarLinkProps {
@@ -123,6 +124,13 @@ export default function Sidebar({ className }: SidebarProps) {
             active={activeLink === "Alertas"}
             collapsed={collapsed}
             onClick={() => setActiveLink("Alertas")}
+          />
+          <SidebarLink 
+            icon={Plug} 
+            label="Integrações" 
+            active={activeLink === "Integrações"}
+            collapsed={collapsed}
+            onClick={() => setActiveLink("Integrações")}
           />
         </div>
 

@@ -37,6 +37,7 @@ import EditMetricsForm from "@/components/EditMetricsForm";
 import MetricsTable from "@/components/MetricsTable";
 import GoalsForm from "@/components/GoalsForm";
 import OverdueCustomersPanel from "@/components/OverdueCustomersPanel";
+import IntegrationsPanel from "@/components/IntegrationsPanel";
 import { useStartupMetrics } from "@/hooks/useStartupMetrics";
 import { calculateGrowthRate, formatCurrency } from "@/lib/startup-data";
 import { useAuth } from "@/contexts/AuthContext";
