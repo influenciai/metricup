@@ -30,14 +30,20 @@ export default function MetricsEvolutionChart({
   isCurrency = false,
   isPercentage = false
 }: MetricsEvolutionChartProps) {
-  const chartData = data.map(item => ({
-    month: new Date(item.month + "-01").toLocaleDateString('pt-BR', { 
-      month: 'short', 
-      year: '2-digit' 
-    }),
-    value: item[metric] as number,
-    fullMonth: item.month
-  }));
+  const chartData = data.map(item => {
+    // Parse the month string correctly (YYYY-MM format)
+    const [year, month] = item.month.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+    
+    return {
+      month: date.toLocaleDateString('pt-BR', { 
+        month: 'short', 
+        year: '2-digit' 
+      }),
+      value: item[metric] as number,
+      fullMonth: item.month
+    };
+  });
 
   const formatValue = (value: number) => {
     if (isCurrency) return formatCurrency(value);
