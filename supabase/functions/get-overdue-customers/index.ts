@@ -62,16 +62,16 @@ serve(async (req) => {
       "Content-Type": "application/json"
     };
 
-    // Calcular data de 5 dias atrás
-    const fiveDaysAgo = new Date();
-    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
-    const fiveDaysAgoStr = fiveDaysAgo.toISOString().split('T')[0];
+    // Calcular data de 3 dias atrás (ao invés de 5)
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    const threeDaysAgoStr = threeDaysAgo.toISOString().split('T')[0];
 
-    logStep("Buscando pagamentos em atraso", { dateLimitStr: fiveDaysAgoStr });
+    logStep("Buscando pagamentos em atraso", { dateLimitStr: threeDaysAgoStr });
 
-    // Buscar pagamentos em atraso há mais de 5 dias
+    // Buscar pagamentos em atraso há mais de 3 dias
     const overduePaymentsResponse = await fetch(
-      `https://www.asaas.com/api/v3/payments?status=OVERDUE&dueDate[le]=${fiveDaysAgoStr}&limit=100`,
+      `https://www.asaas.com/api/v3/payments?status=OVERDUE&dueDate[le]=${threeDaysAgoStr}&limit=100`,
       { headers: asaasHeaders }
     );
 
