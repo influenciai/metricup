@@ -49,7 +49,7 @@ export default function SuperAdmin() {
   const [searchTerm, setSearchTerm] = useState("");
 
   // Verificar se é super admin
-  const isSuperAdmin = user?.email === 'ghenriquealm@gmail.com';
+  const isSuperAdmin = user?.email === 'ghenriquealm@gmail.com' || user?.email === 'run4salesbr@gmail.com';
 
   useEffect(() => {
     if (!isSuperAdmin) {

@@ -66,7 +66,7 @@ export default function Dashboard() {
   }
 
   // Verificar se é super admin
-  const isSuperAdmin = user?.email === 'ghenriquealm@gmail.com';
+  const isSuperAdmin = user?.email === 'ghenriquealm@gmail.com' || user?.email === 'run4salesbr@gmail.com';
 
   const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
